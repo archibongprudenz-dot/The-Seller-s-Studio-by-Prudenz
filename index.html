@@ -1,0 +1,3415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Studio | Professional Design Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem; }
+        .logo-brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-size: 1rem; color: var(--primary); text-decoration: none; letter-spacing: -0.025em; flex-shrink: 0; }
+        
+        .tabs { display: flex; background: #f1f5f9; padding: 0.2rem; border-radius: 8px; gap: 0.2rem; overflow-x: auto; flex-grow: 1; justify-content: flex-end; scrollbar-width: thin; }
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; align-items: stretch; }
+            .tabs { 
+                justify-content: flex-start; 
+                padding: 0.5rem; 
+                overflow-x: auto; 
+                overflow-y: auto; 
+                max-height: 150px;
+                flex-wrap: wrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tab-btn { flex-shrink: 0; }
+            main { grid-template-columns: 1fr; padding: 1rem; }
+            .sidebar { max-height: 500px; overflow-y: auto; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+            .canvas-container { min-height: 400px; padding: 1rem; overflow: auto; }
+        }
+        .tab-btn { padding: 0.4rem 0.75rem; border: none; background: transparent; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .tab-btn.active { background: var(--surface); color: var(--primary); box-shadow: var(--shadow); }
+
+        main { flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 1.5rem; display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; }
+        @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+
+        .sidebar { display: flex; flex-direction: column; gap: 1rem; height: fit-content; max-height: calc(100vh - 120px); overflow-y: auto; padding-right: 0.5rem; }
+        .panel { background: var(--surface); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 1rem; }
+        .panel-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem; }
+
+        .control-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .control-group label { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+        input[type="text"], input[type="number"], select, textarea { padding: 0.625rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; width: 100%; outline: none; transition: border-color 0.2s; background: #fcfcfd; }
+        textarea { resize: none; overflow-y: hidden; min-height: 38px; line-height: 1.4; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; }
+        .template-item { aspect-ratio: 1.75; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; text-align: center; padding: 4px; transition: all 0.2s; background: #f8fafc; }
+        .template-item.active { border-color: var(--primary); background: var(--primary); color: white; }
+
+        .canvas-container { position: relative; background: #e2e8f0; padding: 2rem; border-radius: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px; overflow: visible; z-index: 1; }
+        canvas { background: white; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-width: 100%; height: auto; cursor: crosshair; display: block; }
+        #stampPreviewWrapper { 
+            display: block; 
+            width: 100%; 
+            min-height: 350px; 
+            position: relative; 
+            text-align: center;
+        }
+        #stampCanvas { 
+            background: white; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 10px; 
+            margin: 0 auto;
+            display: inline-block;
+        }
+        
+        .canvas-hint { margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; background: rgba(255,255,255,0.8); padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid var(--border); }
+
+        .actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: #f8fafc; }
+
+        .hidden { display: none !important; }
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-input-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .file-input-btn { display: block; padding: 0.625rem; border: 2px dashed var(--border); border-radius: 8px; text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: #fcfcfd; }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+        .color-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        input[type="color"] { -webkit-appearance: none; border: 1px solid var(--border); border-radius: 6px; width: 100%; height: 38px; cursor: pointer; padding: 2px; background: white; }
+
+        #print-image { display: none; }
+        @media print { body * { visibility: hidden; } #print-image, #print-image * { visibility: visible; } #print-image { position: absolute; left: 0; top: 0; width: 100%; } }
+        
+        footer { padding: 2rem; text-align: center; border-top: 1px solid var(--border); margin-top: auto; background: var(--surface); }
+        .footer-text { font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+        .footer-brand { font-weight: 700; color: var(--text); margin-bottom: 0.5rem; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <a href="#" class="logo-brand">THE SWIFTSTUDIO BY PRUDENZ</a>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('card')">Complimentary Card Designer</button>
+            <button class="tab-btn" onclick="switchTab('whatsapp')">WhatsApp Product Post</button>
+            <button class="tab-btn" onclick="switchTab('stamp')">Stamp Generator</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="sidebar">
+        <!-- HELP NOTE -->
+        <div class="panel" style="padding: 0.75rem; background: #f0f9ff; border-color: #bae6fd;">
+            <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p style="font-size: 0.7rem; font-weight: 600; color: #0369a1; line-height: 1.3;">
+                    Tip: Tap any text on the design to select it. Use the "Text Color" control to change its color.
+                </p>
+            </div>
+        </div>
+
+        <!-- CARD CONTROLS -->
+        <div id="card-controls" class="tab-content">
+            <div class="panel">
+                <div class="panel-title">Templates</div>
+                <div class="template-grid">
+                    <div class="template-item active" onclick="setTemplate('card', 1)">Corporate</div>
+                    <div class="template-item" onclick="setTemplate('card', 2)">Modern</div>
+                    <div class="template-item" onclick="setTemplate('card', 3)">Luxury</div>
+                    <div class="template-item" onclick="setTemplate('card', 4)">Split</div>
+                    <div class="template-item" onclick="setTemplate('card', 5)">Minimal</div>
+                    <div class="template-item" onclick="setTemplate('card', 6)">Orange Circle</div>
+                    <div class="template-item" onclick="setTemplate('card', 7)">Digital Border</div>
+                    <div class="template-item" onclick="setTemplate('card', 8)">Geometric</div>
+                    <div class="template-item" onclick="setTemplate('card', 9)">Corner Accent</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Company Info</div>
+                <textarea id="c-biz" placeholder="Example: Your Company Name" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'biz', this.value)"></textarea>
+                <textarea id="c-slogan" placeholder="Example: Your Company Slogan" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'slogan', this.value)"></textarea>
+                <div class="file-input-wrapper">
+                    <div class="file-input-btn">Upload Logo</div>
+                    <input type="file" accept="image/*" onchange="handleUpload(event, 'card', 'logo')">
+                </div>
+                <button class="btn btn-secondary" style="width:100%; margin-top: 0.5rem; font-size: 0.7rem;" onclick="removeBackground('card', 'logo')">Remove Background</button>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Personal Details</div>
+                <textarea id="c-name" placeholder="Example: Full Name" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'name', this.value)"></textarea>
+                <textarea id="c-pos" placeholder="Example: Position or Title" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'pos', this.value)"></textarea>
+                <textarea id="c-phone" placeholder="Example: Phone Number" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'phone', this.value)"></textarea>
+                <textarea id="c-email" placeholder="Example: Email Address" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'email', this.value)"></textarea>
+                <textarea id="c-address" placeholder="Example: Office Address" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'address', this.value)"></textarea>
+                <textarea id="c-instagram" placeholder="Instagram Handle" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'instagram', this.value)"></textarea>
+                <textarea id="c-facebook" placeholder="Facebook Handle" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'facebook', this.value)"></textarea>
+                <textarea id="c-tiktok" placeholder="TikTok Handle" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'tiktok', this.value)"></textarea>
+                <textarea id="c-linkedin" placeholder="LinkedIn Handle" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'linkedin', this.value)"></textarea>
+                <textarea id="c-youtube" placeholder="YouTube Handle" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('card', 'youtube', this.value)"></textarea>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Optional Image</div>
+                <div class="file-input-wrapper">
+                    <div class="file-input-btn">Upload Image</div>
+                    <input type="file" accept="image/*" onchange="handleUpload(event, 'card', 'userImg')">
+                </div>
+                <button class="btn btn-secondary" style="width:100%; margin-top: 0.5rem; font-size: 0.7rem;" onclick="removeBackground('card', 'userImg')">Remove Background</button>
+                <div class="control-group">
+                    <label>Image Opacity</label>
+                    <input type="range" id="c-user-op" min="0" max="100" value="100" oninput="updateOpacity('card', 'userImg', this.value)">
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Colors</div>
+                <div class="color-grid">
+                    <div class="control-group"><label>BG / Left</label><input type="color" id="c-bg" value="#ffffff" oninput="updateColor('card', 'bg', this.value)"></div>
+                    <div class="control-group"><label>Primary / Right</label><input type="color" id="c-primary" value="#2563eb" oninput="updateColor('card', 'primary', this.value)"></div>
+                    <div class="control-group"><label>Overall Text Color</label><input type="color" id="c-text-color" value="#000000" oninput="updateCardTextColor(this.value)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WHATSAPP CONTROLS -->
+        <div id="whatsapp-controls" class="tab-content hidden">
+            <div class="panel">
+                <div class="panel-title">Templates</div>
+                <div class="template-grid">
+                    <div class="template-item active" onclick="setTemplate('whatsapp', 1)">Bold Center</div>
+                    <div class="template-item" onclick="setTemplate('whatsapp', 2)">Split Promo</div>
+                    <div class="template-item" onclick="setTemplate('whatsapp', 3)">Price Focus</div>
+                    <div class="template-item" onclick="setTemplate('whatsapp', 4)">Bottom Panel</div>
+                    <div class="template-item" onclick="setTemplate('whatsapp', 5)">Minimal Clean</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Image Mode</div>
+                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8rem;">
+                        <input type="radio" name="w-mode" value="single" checked onchange="setWhatsappMode(this.value)"> Single Picture
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8rem;">
+                        <input type="radio" name="w-mode" value="multiple" onchange="setWhatsappMode(this.value)"> Multiple Pictures
+                    </label>
+                </div>
+            </div>
+
+            <div id="w-single-panel">
+                <div class="panel">
+                    <div class="panel-title">Badge Settings</div>
+                    <div class="control-group">
+                        <label>Badge Type</label>
+                        <select id="w-badge-type" onchange="handleBadgeChange(this.value)">
+                            <option value="">No Badge</option>
+                            <option value="Discount" selected>Discount</option>
+                            <option value="New Arrival">New Arrival</option>
+                            <option value="Limited Offer">Limited Offer</option>
+                            <option value="Best Seller">Best Seller</option>
+                            <option value="Special Offer">Special Offer</option>
+                        </select>
+                    </div>
+                    <textarea id="w-badge-text" placeholder="Example: Discount" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('whatsapp', 'badge', this.value)" onchange="render()"></textarea>
+                </div>
+                    <div class="panel">
+                        <div class="panel-title">Currency Settings</div>
+                        <div class="control-group" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 120px;">
+                                <label>Select Currency</label>
+                                <select id="w-currency" onchange="state.whatsapp.currency = this.value; refreshWhatsappPrices(); render(); saveState();">
+                                    <option value="₦">Naira (₦)</option>
+                                    <option value="$">Dollar ($)</option>
+                                </select>
+                            </div>
+                            <p style="font-size: 0.6rem; color: #64748b; margin-top: 0.25rem; line-height: 1.1; flex: 1.5; min-width: 150px;">
+                                <strong>Note:</strong> Default currencies are ₦ and $. For others, copy your symbol and paste it before the price.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">Product Details</div>
+                    <textarea id="w-name" placeholder="Example: Product Name" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('whatsapp', 'name', this.value)"></textarea>
+                    <div id="w-price-container">
+                        <div id="w-price-labels" style="display: flex; gap: 0.5rem; margin-bottom: 0.2rem;">
+                            <label style="flex:1; font-size: 0.65rem; font-weight: 600;">Old Price</label>
+                            <label style="flex:1; font-size: 0.65rem; font-weight: 600;">New Price</label>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <textarea id="w-former-price" placeholder="Example: 0.00" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('whatsapp', 'formerPrice', this.value)"></textarea>
+                            <textarea id="w-price" placeholder="Example: 0.00" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('whatsapp', 'price', this.value)"></textarea>
+                        </div>
+                    </div>
+                    <textarea id="w-desc" rows="1" placeholder="Example: Product Description" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('whatsapp', 'desc', this.value)" style="margin-top: 0.5rem;"></textarea>
+                    <div class="file-input-wrapper" style="margin-top: 0.5rem;">
+                        <div class="file-input-btn">Upload Product Image</div>
+                        <input type="file" accept="image/*" onchange="handleUpload(event, 'whatsapp', 'productImg')">
+                    </div>
+                    <!-- Background removal moved to canvas area -->
+                </div>
+            </div>
+
+            <div id="w-multiple-panel" class="hidden">
+                <div id="w-multi-slots"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Branding & BG</div>
+                <div class="control-group">
+                    <label>Overall Text Color</label>
+                    <input type="color" id="w-text-color" value="#000000" oninput="updateWhatsappTextColor(this.value)">
+                </div>
+                <div class="file-input-wrapper">
+                    <div class="file-input-btn">Upload Company Logo</div>
+                    <input type="file" accept="image/*" onchange="handleUpload(event, 'whatsapp', 'logo')">
+                </div>
+                <!-- Background removal moved to canvas area -->
+                <div class="file-input-wrapper">
+                    <div class="file-input-btn">Upload Background</div>
+                    <input type="file" accept="image/*" onchange="handleUpload(event, 'whatsapp', 'bgImg')">
+                </div>
+                <div class="control-group">
+                    <label>BG Intensity</label>
+                    <input type="range" id="w-bg-op" min="0" max="100" value="100" oninput="updateOpacity('whatsapp', 'bgImg', this.value)">
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Adjust Selected</div>
+                <div class="control-group">
+                    <label>Size Control</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" style="flex:1; padding: 0.75rem; font-weight: bold; font-size: 1.2rem;" onclick="adjustSelectedSize(-10)">−</button>
+                        <button class="btn btn-secondary" style="flex:1; padding: 0.75rem; font-weight: bold; font-size: 1.2rem;" onclick="adjustSelectedSize(10)">+</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Fine Adjustment</label>
+                    <input type="range" min="10" max="1000" value="100" oninput="updateSelectedSize(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <!-- STAMP CONTROLS -->
+        <div id="stamp-controls" class="tab-content hidden">
+            <div class="panel">
+                <div class="panel-title">Stamp Shape</div>
+                <select id="st-shape" onchange="updateStampShape(this.value)">
+                    <option value="circular">Circular</option>
+                    <option value="rectangular">Rectangular</option>
+                </select>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Stamp Type</div>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <select id="st-type" onchange="handleStampType(this.value)" style="flex: 1;">
+                        <option value="APPROVED">APPROVED</option>
+                        <option value="DECLINED">DECLINED</option>
+                        <option value="VERIFIED">VERIFIED</option>
+                        <option value="PAID">PAID</option>
+                        <option value="RECEIVED">RECEIVED</option>
+                        <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                        <option value="CUSTOM">CUSTOM</option>
+                    </select>
+                    <button id="stampPreviewBtn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">Preview</button>
+                </div>
+                <textarea id="stampCenterText" placeholder="Example: APPROVED" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('stamp', 'centerText', this.value)" onchange="render()"></textarea>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Company Branding</div>
+                <textarea id="stampTopText" placeholder="Example: Your Company Name" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('stamp', 'company', this.value)"></textarea>
+                
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+                    <div class="file-input-wrapper" style="margin-bottom: 0; flex: 1;">
+                        <div class="file-input-btn" style="padding: 0.5rem;">Upload Company Logo</div>
+                        <input type="file" accept="image/*" onchange="handleUpload(event, 'stamp', 'logo')">
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.7rem; white-space: nowrap;" onclick="removeBackground('stamp', 'logo')">Remove Background</button>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+                    <div class="file-input-wrapper" style="margin-bottom: 0; flex: 1;">
+                        <div class="file-input-btn" style="padding: 0.5rem;">Upload Signature</div>
+                        <input type="file" accept="image/*" onchange="handleUpload(event, 'stamp', 'signatureImg')">
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.7rem; white-space: nowrap;" onclick="removeBackground('stamp', 'signatureImg')">Remove Background</button>
+                </div>
+
+                <textarea id="stampBottomText" placeholder="Example: Position" rows="1" spellcheck="false" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; updateField('stamp', 'position', this.value)"></textarea>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Appearance & Visibility</div>
+                <input type="color" id="st-color" value="#dc2626" oninput="updateColor('stamp', 'color', this.value)">
+                <div class="control-group">
+                    <label>Stamp Rotation</label>
+                    <div style="position: relative; width: 100%; height: 32px; display: flex; align-items: center; padding-top: 8px;">
+                        <input type="range" id="st-rotation" min="-180" max="180" value="0" oninput="updateField('stamp', 'rotation', this.value)" style="width: 100%;">
+                        <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 2px; background: var(--primary); pointer-events: none; height: 100%;" title="Center Guide">
+                            <div style="position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid var(--primary);"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size: 0.7rem;">
+                        <input type="checkbox" id="st-logo-check" checked onchange="updateField('stamp', 'showLogo', this.checked)">
+                        Show Logo
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size: 0.7rem;">
+                        <input type="checkbox" id="st-sig-check" checked onchange="updateField('stamp', 'showSignature', this.checked)">
+                        Show Signature
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size: 0.7rem;">
+                        <input type="checkbox" id="st-pos-check" checked onchange="updateField('stamp', 'showPosition', this.checked)">
+                        Show Position
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size: 0.7rem;">
+                        <input type="checkbox" id="st-date-check" checked onchange="updateField('stamp', 'showDate', this.checked)">
+                        Include Date
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size: 0.75rem;">
+                        <input type="checkbox" id="st-rotate-check" checked onchange="updateField('stamp', 'randomRotate', this.checked)">
+                        Random Rubber Noise
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SELECTED ELEMENT CONTROLS -->
+        <div id="selected-controls" class="panel hidden">
+            <div class="panel-title">Selected Element</div>
+            <div class="control-group">
+                <label>Size Control</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" style="flex:1; padding: 0.75rem; font-weight: bold; font-size: 1.2rem;" onclick="adjustSelectedSize(-10)">−</button>
+                    <button class="btn btn-secondary" style="flex:1; padding: 0.75rem; font-weight: bold; font-size: 1.2rem;" onclick="adjustSelectedSize(10)">+</button>
+                </div>
+            </div>
+            <div id="text-only-controls" class="hidden">
+                <div class="control-group">
+                    <label>Text Color</label>
+                    <input type="color" id="selected-text-color" oninput="updateSelectedColor(this.value)">
+                </div>
+            </div>
+            <div id="image-only-controls" class="hidden">
+                <div class="control-group">
+                    <label>Opacity</label>
+                    <input type="range" id="selected-opacity" min="0" max="100" value="100" oninput="updateSelectedOpacity(this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <!-- Permanent Remove Background Button for WhatsApp -->
+        <div id="whatsapp-bg-tools" class="hidden" style="margin-bottom: 1.5rem; text-align: center; width: 100%;">
+            <button class="btn" onclick="removeBackgroundFromSelected()" style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; font-weight: 700; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                Remove Background
+            </button>
+            <p style="font-size: 0.75rem; color: #64748b; max-width: 450px; margin: 0 auto; line-height: 1.4; font-weight: 500;">
+                Tip: Click an image first, then press “Remove Background”. Best results work with solid backgrounds such as: white, light gray, or plain colors.
+            </p>
+        </div>
+        <canvas id="main-canvas"></canvas>
+        <div id="stampPreviewWrapper" class="hidden" style="width:100%;min-height:360px;">
+            <canvas id="stampCanvas"></canvas>
+        </div>
+        <div class="canvas-hint">Drag to move • Drag handle to resize • Click text to edit</div>
+        
+        <div class="actions" id="card-actions">
+            <button class="btn btn-primary" onclick="exportPNG()">Download PNG</button>
+            <button class="btn btn-secondary" onclick="exportPDF()">Download PDF</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <button class="btn btn-secondary" onclick="shareDesign()">Share</button>
+        </div>
+        <div class="actions hidden" id="whatsapp-actions">
+            <button class="btn btn-primary" onclick="exportPNG()">Download PNG (1080x1080)</button>
+        </div>
+        <div class="actions hidden" id="stamp-actions">
+            <button class="btn btn-primary" onclick="exportStamp(true)">Download With Date</button>
+            <button class="btn btn-secondary" onclick="exportStamp(false)">Download Without Date</button>
+        </div>
+
+    </div>
+</main>
+
+<div id="print-image"></div>
+
+<footer>
+    <div class="footer-brand">THE SWIFT STUDIO by Prudenz.</div>
+    <div class="footer-text">
+        This software is created by Prudenz Archibong.<br>
+        Unauthorized reproduction, redistribution, resale, modification, or sharing without written permission is strictly prohibited.<br><br>
+        Contact: archibongprudenz@gmail.com
+    </div>
+</footer>
+
+<script>
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const state = {
+        tab: 'card',
+        selectedId: null,
+        isDragging: false,
+        isResizing: false,
+        isRotating: false,
+        hasMoved: false,
+        isExporting: false,
+        zoom: 1,
+        pan: { x: 0, y: 0 },
+        dragOffset: { x: 0, y: 0 },
+        initialResizeData: null,
+        card: {
+            template: 1,
+            bg: '#ffffff',
+            primary: '#2563eb',
+            elements: []
+        },
+        whatsapp: {
+            template: 1,
+            bg: '#ffffff',
+            textColor: '#000000',
+            mode: 'single',
+            currency: '₦',
+            elements: []
+        },
+        stamp: {
+            shape: 'circular',
+            color: '#dc2626',
+            showDate: true,
+            showLogo: true,
+            showSignature: true,
+            showPosition: true,
+            randomRotate: true,
+            rotation: 0,
+            centerText: 'APPROVED',
+            company: 'SELLER STUDIO',
+            position: '',
+            elements: []
+        }
+    };
+
+    const HANDLE_SIZE = 12;
+
+    function init() {
+        // Initialize all tab elements first so loadState has targets to restore into
+        initCardElements();
+        initWhatsappElements();
+        initStampElements();
+
+        switchTab('card');
+        loadState(); // Load persisted data
+        updateUIFromState();
+        setupCanvasEvents();
+        
+        window.addEventListener('mousedown', (e) => {
+            if (!canvas.contains(e.target) && !e.target.closest('.sidebar') && !document.getElementById('stampCanvas').contains(e.target)) {
+                state.selectedId = null;
+                render();
+            }
+        });
+
+        const previewBtn = document.getElementById('stampPreviewBtn');
+        if (previewBtn) {
+            previewBtn.onclick = drawStampPreview;
+            previewBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                drawStampPreview();
+            }, { passive: false });
+        }
+
+        window.addEventListener('resize', render);
+        
+        // Force initial draw
+        setTimeout(render, 500);
+    }
+
+    function saveState() {
+        const data = {
+            card: {
+                bg: state.card.bg,
+                primary: state.card.primary,
+                elements: state.card.elements.map(el => ({
+                    id: el.id,
+                    text: el.text,
+                    x: el.x,
+                    y: el.y,
+                    fontSize: el.fontSize,
+                    color: el.color,
+                    isManual: el.isManual,
+                    imgData: el.imgData,
+                    hidden: el.hidden
+                }))
+            },
+            whatsapp: {
+                bg: state.whatsapp.bg,
+                textColor: state.whatsapp.textColor,
+                mode: state.whatsapp.mode,
+                template: state.whatsapp.template,
+                elements: state.whatsapp.elements.map(el => ({
+                    id: el.id,
+                    text: el.text,
+                    x: el.x,
+                    y: el.y,
+                    fontSize: el.fontSize,
+                    color: el.color,
+                    isManual: el.isManual,
+                    imgData: el.imgData,
+                    hidden: el.hidden
+                }))
+            },
+            stamp: {
+                shape: state.stamp.shape,
+                color: state.stamp.color,
+                showDate: state.stamp.showDate,
+                showLogo: state.stamp.showLogo,
+                showSignature: state.stamp.showSignature,
+                showPosition: state.stamp.showPosition,
+                randomRotate: state.stamp.randomRotate,
+                rotation: state.stamp.rotation,
+                centerText: state.stamp.centerText,
+                company: state.stamp.company,
+                position: state.stamp.position,
+                elements: state.stamp.elements.map(el => ({
+                    id: el.id,
+                    text: el.text,
+                    x: el.x,
+                    y: el.y,
+                    fontSize: el.fontSize,
+                    color: el.color,
+                    isManual: el.isManual,
+                    imgData: el.imgData,
+                    hidden: el.hidden
+                }))
+            }
+        };
+        localStorage.setItem('sellerStudioState', JSON.stringify(data));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('sellerStudioState');
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            
+            // Helper to restore images
+            const restoreImages = (target, source) => {
+                source.elements.forEach(savedEl => {
+                    const el = target.elements.find(e => e.id === savedEl.id);
+                    if (el) {
+                        Object.assign(el, savedEl);
+                        if (el.imgData) {
+                            const img = new Image();
+                            img.onload = () => { el.img = img; render(); };
+                            img.src = el.imgData;
+                        }
+                    }
+                });
+            };
+
+            if (data.card) {
+                state.card.bg = data.card.bg;
+                state.card.primary = data.card.primary;
+                restoreImages(state.card, data.card);
+                // Update UI inputs
+                const bgInput = document.getElementById('c-bg');
+                const priInput = document.getElementById('c-primary');
+                if (bgInput) bgInput.value = state.card.bg;
+                if (priInput) priInput.value = state.card.primary;
+            }
+            if (data.whatsapp) {
+                state.whatsapp.bg = data.whatsapp.bg;
+                state.whatsapp.textColor = data.whatsapp.textColor;
+                state.whatsapp.mode = data.whatsapp.mode || 'single';
+                state.whatsapp.template = data.whatsapp.template || 1;
+                restoreImages(state.whatsapp, data.whatsapp);
+                const wTextColorInput = document.getElementById('w-text-color');
+                if (wTextColorInput) wTextColorInput.value = state.whatsapp.textColor;
+                
+                // Restore mode UI
+                const modeInput = document.querySelector(`input[name="w-mode"][value="${state.whatsapp.mode}"]`);
+                if (modeInput) modeInput.checked = true;
+                setWhatsappMode(state.whatsapp.mode);
+            }
+            if (data.stamp) {
+                Object.assign(state.stamp, data.stamp);
+                restoreImages(state.stamp, data.stamp);
+                // Update UI
+                const stColorInput = document.getElementById('st-color');
+                const stShapeInput = document.getElementById('st-shape');
+                const stCenterInput = document.getElementById('stampCenterText');
+                const stCompanyInput = document.getElementById('stampTopText');
+                if (stColorInput) stColorInput.value = state.stamp.color;
+                if (stShapeInput) stShapeInput.value = state.stamp.shape;
+                if (stCenterInput) stCenterInput.value = state.stamp.centerText;
+                if (stCompanyInput) stCompanyInput.value = state.stamp.company;
+            }
+            render();
+        } catch (e) {
+            console.error('Failed to load state', e);
+        }
+    }
+
+    function getContrastColor(hexColor) {
+        if (!hexColor) return '#000000';
+        const hex = hexColor.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? '#000000' : '#ffffff';
+    }
+
+    function switchTab(tab) {
+        state.tab = tab;
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            const isTarget = (tab === 'card' && btn.innerText.includes('Card')) ||
+                             (tab === 'whatsapp' && btn.innerText.includes('WhatsApp')) ||
+                             (tab === 'stamp' && btn.innerText.includes('Stamp'));
+            btn.classList.toggle('active', isTarget);
+        });
+
+        // Hide all tab contents first
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        // Show target tab content
+        const targetContent = document.getElementById(`${tab}-controls`);
+        if (targetContent) targetContent.classList.remove('hidden');
+        
+        // Toggle specific tools
+        const bgTools = document.getElementById('whatsapp-bg-tools');
+        if (bgTools) bgTools.classList.toggle('hidden', tab !== 'whatsapp');
+
+        // Toggle actions
+        document.getElementById('card-actions').classList.toggle('hidden', tab !== 'card');
+        document.getElementById('whatsapp-actions').classList.toggle('hidden', tab !== 'whatsapp');
+        document.getElementById('stamp-actions').classList.toggle('hidden', tab !== 'stamp');
+
+        // CANVAS TOGGLE
+        const mainCanvas = document.getElementById('main-canvas');
+        const stampWrapper = document.getElementById('stampPreviewWrapper');
+        if (tab === 'stamp') {
+            mainCanvas.classList.add('hidden');
+            stampWrapper.classList.remove('hidden');
+            setTimeout(drawStampPreview, 150);
+        } else {
+            mainCanvas.classList.remove('hidden');
+            stampWrapper.classList.add('hidden');
+        }
+
+        // Set canvas dimensions and init
+        if (tab === 'card') { 
+            canvas.width = 1050; canvas.height = 600; 
+            initCardElements(); 
+        } else if (tab === 'whatsapp') { 
+            canvas.width = 1080; canvas.height = 1080; 
+            initWhatsappElements(); 
+            setWhatsappMode(state.whatsapp.mode || 'single'); 
+        } else if (tab === 'stamp') { 
+            initStampElements(); 
+        }
+        
+        state.selectedId = null;
+        updateUIFromState();
+        render();
+    }
+
+    function updateUIFromState() {
+        const tab = state.tab;
+        const s = state[tab];
+        s.elements.forEach(el => {
+            let inputId = `${tab === 'card' ? 'c' : tab === 'whatsapp' ? 'w' : 'st'}-${el.id}`;
+            if (tab === 'stamp') {
+                if (el.id === 'centerText') inputId = 'stampCenterText';
+                if (el.id === 'company') inputId = 'stampTopText';
+                if (el.id === 'position') inputId = 'stampBottomText';
+            }
+            const input = document.getElementById(inputId);
+            if (input && (el.type === 'text' || el.type === 'badge')) {
+                input.value = el.text || '';
+                // Trigger auto-resize
+                input.style.height = '';
+                input.style.height = input.scrollHeight + 'px';
+            }
+        });
+        
+        if (tab === 'whatsapp') {
+            const modeInput = document.querySelector(`input[name="w-mode"][value="${s.mode || 'single'}"]`);
+            if (modeInput) modeInput.checked = true;
+            
+            if (s.mode === 'multiple') {
+                for (let i = 1; i <= 5; i++) {
+                    const badgeEl = s.elements.find(e => e.id === `badge_${i}`);
+                    const badgeTypeSelect = document.getElementById(`w-badge-type_${i}`);
+                    if (badgeTypeSelect && badgeEl) {
+                        const commonBadges = ['Discount', 'New Arrival', 'Limited Offer', 'Best Seller', 'Special Offer'];
+                        if (commonBadges.includes(badgeEl.text)) {
+                            badgeTypeSelect.value = badgeEl.text;
+                        } else if (badgeEl.text) {
+                            badgeTypeSelect.value = 'Custom';
+                            const badgeTextarea = document.getElementById(`w-badge_${i}`);
+                            if (badgeTextarea) badgeTextarea.classList.remove('hidden');
+                        } else {
+                            badgeTypeSelect.value = '';
+                        }
+                    }
+                    
+                    const formerPriceEl = s.elements.find(e => e.id === `formerPrice_${i}`);
+                    if (formerPriceEl && !formerPriceEl.hidden) {
+                         const priceLabels = document.getElementById(`w-price-labels_${i}`);
+                         const formerPriceInput = document.getElementById(`w-formerPrice_${i}`);
+                         if (priceLabels) priceLabels.classList.remove('hidden');
+                         if (formerPriceInput) formerPriceInput.classList.remove('hidden');
+                    }
+                }
+            }
+        }
+
+        // Also update colors and other specific inputs
+        if (tab === 'card') {
+            const bgInput = document.getElementById('c-bg');
+            const priInput = document.getElementById('c-primary');
+            if (bgInput) bgInput.value = s.bg;
+            if (priInput) priInput.value = s.primary;
+        } else if (tab === 'whatsapp') {
+            const wTextColorInput = document.getElementById('w-text-color');
+            if (wTextColorInput) wTextColorInput.value = s.textColor;
+        } else if (tab === 'stamp') {
+            const stColorInput = document.getElementById('st-color');
+            const stShapeInput = document.getElementById('st-shape');
+            const stCenterInput = document.getElementById('stampCenterText');
+            const stCompanyInput = document.getElementById('stampTopText');
+            const stBottomInput = document.getElementById('stampBottomText');
+            
+            if (stColorInput) stColorInput.value = s.color || '#dc2626';
+            if (stShapeInput) stShapeInput.value = s.shape || 'circular';
+            if (stCenterInput) stCenterInput.value = s.centerText || '';
+            if (stCompanyInput) stCompanyInput.value = s.company || '';
+            if (stBottomInput) stBottomInput.value = s.position || '';
+
+            // Checkboxes and Range
+            const logoCheck = document.getElementById('st-logo-check');
+            const sigCheck = document.getElementById('st-sig-check');
+            const posCheck = document.getElementById('st-pos-check');
+            const dateCheck = document.getElementById('st-date-check');
+            const rotateCheck = document.getElementById('st-rotate-check');
+            const rotationInput = document.getElementById('st-rotation');
+
+            if (logoCheck) logoCheck.checked = s.showLogo !== false;
+            if (sigCheck) sigCheck.checked = s.showSignature !== false;
+            if (posCheck) posCheck.checked = s.showPosition !== false;
+            if (dateCheck) dateCheck.checked = s.showDate !== false;
+            if (rotateCheck) rotateCheck.checked = s.randomRotate !== false;
+            if (rotationInput) rotationInput.value = s.rotation || 0;
+        }
+    }
+
+    function initCardElements() {
+        const s = state.card;
+        if (s.elements.length > 0) return;
+        s.elements = [
+            { id: 'biz', type: 'text', text: 'Acme Creative', x: 360, y: 70, fontSize: 48, fontWeight: 'bold', color: '#000000' },
+            { id: 'slogan', type: 'text', text: 'Innovating the Future', x: 360, y: 100, fontSize: 20, fontWeight: '500', color: '#000000' },
+            { id: 'name', type: 'text', text: 'Alex Rivera', x: 360, y: 200, fontSize: 42, fontWeight: 'bold', color: '#000000' },
+            { id: 'pos', type: 'text', text: 'Creative Director', x: 360, y: 230, fontSize: 22, fontWeight: '600', color: '#000000' },
+            { id: 'phone', type: 'text', text: '+1 234 567 890', x: 360, y: 280, fontSize: 18, color: '#000000', isSocial: true, socialType: 'phone' },
+            { id: 'email', type: 'text', text: 'alex@acme.com', x: 360, y: 310, fontSize: 18, color: '#000000', isSocial: true, socialType: 'email' },
+            { id: 'address', type: 'text', text: '123 Design Way, Studio City', x: 360, y: 340, fontSize: 18, color: '#000000', isSocial: true, socialType: 'address' },
+            { id: 'instagram', type: 'text', text: '', x: 360, y: 370, fontSize: 18, color: '#000000', isSocial: true, socialType: 'instagram' },
+            { id: 'facebook', type: 'text', text: '', x: 360, y: 400, fontSize: 18, color: '#000000', isSocial: true, socialType: 'facebook' },
+            { id: 'tiktok', type: 'text', text: '', x: 360, y: 430, fontSize: 18, color: '#000000', isSocial: true, socialType: 'tiktok' },
+            { id: 'linkedin', type: 'text', text: '', x: 360, y: 460, fontSize: 18, color: '#000000', isSocial: true, socialType: 'linkedin' },
+            { id: 'youtube', type: 'text', text: '', x: 360, y: 490, fontSize: 18, color: '#000000', isSocial: true, socialType: 'youtube' },
+            { id: 'logo', type: 'image', x: 60, y: 60, width: 120, height: 120, img: null },
+            { id: 'userImg', type: 'image', x: 700, y: 80, width: 250, height: 250, img: null, opacity: 1 }
+        ];
+    }
+
+    function initWhatsappElements() {
+        const s = state.whatsapp;
+        if (s.elements.length > 0) return;
+        s.elements = [
+            { id: 'bgImg', type: 'image', x: 0, y: 0, width: 1080, height: 1080, img: null, opacity: 1, isLocked: true },
+            { id: 'productImg', type: 'image', x: 240, y: 150, width: 600, height: 600, img: null, hidden: false },
+            { id: 'name', type: 'text', text: '', x: 540, y: 850, fontSize: 60, fontWeight: '700', color: '#000000', textAlign: 'center', hidden: false },
+            { id: 'formerPrice', type: 'text', text: '', x: 400, y: 940, fontSize: 50, fontWeight: '700', color: '#ef4444', textAlign: 'center', hidden: false, isFormerPrice: true },
+            { id: 'price', type: 'text', text: '', x: 540, y: 940, fontSize: 80, fontWeight: '700', color: '#000000', textAlign: 'center', hidden: false },
+            { id: 'desc', type: 'text', text: '', x: 540, y: 1010, fontSize: 28, fontWeight: '700', color: '#000000', textAlign: 'center', maxWidth: 900, hidden: false },
+            { id: 'badge', type: 'badge', text: '', x: 850, y: 150, width: 200, height: 200, hidden: false },
+            { id: 'logo', type: 'image', x: 40, y: 40, width: 120, height: 120, img: null }
+        ];
+
+        // Multiple mode elements (initially hidden)
+        for (let i = 1; i <= 5; i++) {
+            s.elements.push(
+                { id: `productImg_${i}`, type: 'image', x: 0, y: 0, width: 200, height: 200, img: null, hidden: true, isMulti: true, index: i },
+                { id: `price_${i}`, type: 'text', text: '', x: 0, y: 0, fontSize: 30, fontWeight: '700', color: '#000000', textAlign: 'center', hidden: true, isMulti: true, index: i },
+                { id: `formerPrice_${i}`, type: 'text', text: '', x: 0, y: 0, fontSize: 20, fontWeight: '700', color: '#ef4444', textAlign: 'center', hidden: true, isMulti: true, index: i, isFormerPrice: true },
+                { id: `desc_${i}`, type: 'text', text: '', x: 0, y: 0, fontSize: 18, fontWeight: '700', color: '#000000', textAlign: 'center', hidden: true, isMulti: true, index: i },
+                { id: `badge_${i}`, type: 'badge', text: '', x: 0, y: 0, width: 80, height: 80, hidden: true, isMulti: true, index: i }
+            );
+        }
+    }
+
+    function initStampElements() {
+        const s = state.stamp;
+        if (s.elements.length > 0) return;
+        s.elements = [
+            { id: 'border', type: 'border', x: 0, y: 0, width: 360, height: 360, isLocked: false },
+            { id: 'company', type: 'text', text: s.company || 'COMPANY NAME', x: 0, y: -145, fontSize: 20, fontWeight: 'bold', isCurved: true, arc: 'top' },
+            { id: 'centerText', type: 'text', text: s.centerText || 'APPROVED', x: 0, y: 0, fontSize: 42, fontWeight: 'bold', textAlign: 'center' },
+            { id: 'date', type: 'text', text: getFormattedDate(), x: 0, y: 60, fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+            { id: 'signatureImg', type: 'image', x: -75, y: 85, width: 150, height: 75, img: null, hidden: true },
+            { id: 'position', type: 'text', text: s.position || 'MANAGER', x: 0, y: 145, fontSize: 16, fontWeight: 'bold', textAlign: 'center', hidden: true },
+            { id: 'logo', type: 'image', x: -40, y: -165, width: 80, height: 80, img: null, hidden: true }
+        ];
+    }
+
+    function setTemplate(tab, id) {
+        const s = state[tab];
+        s.template = id;
+        s.elements.forEach(el => el.isManual = false); // Reset manual placement on template change
+        document.querySelectorAll(`#${tab}-controls .template-item`).forEach((item, idx) => item.classList.toggle('active', idx + 1 === id));
+        
+        if (tab === 'card') applyCardTemplate(id);
+        else if (tab === 'whatsapp') applyWhatsappTemplate(id);
+        
+        render();
+    }
+
+    function applyCardTemplate(id) {
+        const els = state.card.elements;
+        const pri = state.card.primary;
+        const s = state.card;
+        
+        els.forEach(el => {
+            el.textAlign = 'left';
+            el.rotation = 0;
+            el.isManual = false; // Reset manual placement on template change
+            el.x = 0; el.y = 0; // Clear positions to let render auto-align
+            if (el.type === 'text') el.color = '#000000'; // Default to black text
+
+            if (id === 1) { // Corporate
+                if (el.id === 'biz') { el.x = 60; el.y = 100; el.fontSize = 48; }
+                if (el.id === 'slogan') { el.x = 60; el.y = 135; el.fontSize = 20; }
+                if (el.id === 'logo') { el.x = 60; el.y = 200; el.width = 120; el.height = 120; }
+                if (el.id === 'name') { el.x = 400; el.y = 200; el.fontSize = 42; }
+                if (el.id === 'pos') { el.x = 400; el.y = 245; el.fontSize = 22; }
+                if (el.isSocial) { 
+                    const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                    el.x = 400; 
+                    el.y = 310 + (idx * 38);
+                    el.fontSize = 18;
+                }
+            } else if (id === 2) { // Modern
+                if (el.id === 'biz') { el.x = canvas.width/2; el.y = 100; el.textAlign = 'center'; el.fontSize = 48; }
+                if (el.id === 'slogan') { el.x = canvas.width/2; el.y = 135; el.textAlign = 'center'; el.fontSize = 20; }
+                if (el.id === 'logo') { el.x = canvas.width/2 - 50; el.y = 170; el.width = 100; el.height = 100; }
+                if (el.id === 'userImg') { el.x = canvas.width - 200; el.y = 40; el.width = 160; el.height = 160; }
+                
+                if (el.isSocial || el.id === 'name' || el.id === 'pos') {
+                    el.x = canvas.width/2;
+                    el.textAlign = 'center';
+                    if (el.id === 'name') { el.y = 320; el.fontSize = 42; }
+                    if (el.id === 'pos') { el.y = 365; el.fontSize = 22; }
+                    if (el.isSocial) {
+                        const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                        el.y = 460 + (idx * 38);
+                        el.fontSize = 18;
+                    }
+                }
+            } else if (id === 3) { // Vertical Split
+                if (el.id === 'biz') { el.x = 60; el.y = 80; el.fontSize = 48; }
+                if (el.id === 'slogan') { el.x = 60; el.y = 110; el.fontSize = 20; }
+                if (el.id === 'logo') { el.x = 60; el.y = 170; el.width = 120; el.height = 120; }
+                if (el.id === 'name') { el.x = 600; el.y = 80; el.fontSize = 42; }
+                if (el.id === 'pos') { el.x = 600; el.y = 120; el.fontSize = 22; }
+                if (el.isSocial) { 
+                    const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                    el.x = 600; 
+                    el.y = 180 + (idx * 35);
+                    el.fontSize = 18;
+                }
+            } else if (id === 4) { // Diagonal Split
+                if (el.id === 'logo') { el.x = 60; el.y = 60; el.width = 120; el.height = 120; }
+                if (el.id === 'biz') { el.x = 60; el.y = 220; el.fontSize = 48; }
+                if (el.id === 'slogan') { el.x = 60; el.y = 250; el.fontSize = 20; }
+                if (el.id === 'userImg') { el.x = 60; el.y = 320; el.width = 200; el.height = 200; }
+                
+                if (el.id === 'name') { el.x = 600; el.y = 100; el.fontSize = 42; }
+                if (el.id === 'pos') { el.x = 600; el.y = 140; el.fontSize = 22; }
+                if (el.isSocial) {
+                    const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                    el.x = 600;
+                    el.y = 200 + (idx * 35);
+                    el.fontSize = 18;
+                }
+            } else if (id === 5) { // Minimal
+                if (el.id === 'biz') { el.x = 60; el.y = 80; el.fontSize = 48; }
+                if (el.id === 'slogan') { el.x = 60; el.y = 110; el.fontSize = 20; }
+                if (el.id === 'logo') { el.x = 880; el.y = 60; el.width = 100; el.height = 100; }
+                if (el.id === 'name') { el.x = 60; el.y = 240; el.fontSize = 42; }
+                if (el.id === 'pos') { el.x = 60; el.y = 280; el.fontSize = 22; }
+                if (el.isSocial) { 
+                    const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                    el.x = 60; 
+                    el.y = 340 + (idx * 35);
+                    el.fontSize = 18;
+                }
+            } else if (id === 6 || id === 7 || id === 8 || id === 9) { // New Decorative Templates
+                if (el.id === 'logo') { el.x = 60; el.y = 60; el.width = 120; el.height = 120; }
+                if (el.id === 'biz') { el.x = 200; el.y = 90; el.fontSize = 40; el.fontWeight = 'bold'; }
+                if (el.id === 'slogan') { el.x = 200; el.y = 118; el.fontSize = 18; }
+                if (el.id === 'name') { el.x = 60; el.y = 280; el.fontSize = 48; el.fontWeight = 'bold'; }
+                if (el.id === 'pos') { el.x = 60; el.y = 325; el.fontSize = 24; el.fontWeight = '600'; }
+                
+                if (el.isSocial) {
+                    const idx = ['phone', 'email', 'address', 'instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'].indexOf(el.id);
+                    el.x = 60;
+                    el.y = 380 + (idx * 32);
+                    el.fontSize = 20;
+                }
+            }
+        });
+        render();
+        saveState();
+    }
+
+    function applyWhatsappTemplate(id) {
+        const els = state.whatsapp.elements;
+        const s = state.whatsapp;
+        const mode = s.mode || 'single';
+        const badgeType = document.getElementById('w-badge-type').value;
+        const isDiscount = badgeType === 'Discount';
+
+        if (mode === 'multiple') {
+            // Hide single mode elements
+            const singleIds = ['productImg', 'name', 'price', 'formerPrice', 'desc', 'badge'];
+            els.forEach(el => {
+                if (singleIds.includes(el.id)) el.hidden = true;
+            });
+
+            // Set common elements
+            const logo = els.find(e => e.id === 'logo');
+            if (logo) {
+                logo.x = 40; logo.y = 40; logo.width = 120; logo.height = 120; logo.hidden = false;
+            }
+            const bgImg = els.find(e => e.id === 'bgImg');
+            if (bgImg) {
+                bgImg.hidden = (id === 5);
+                bgImg.opacity = (id === 4) ? 0.8 : 1;
+                bgImg.x = 0; bgImg.y = 0; bgImg.width = 1080; bgImg.height = 1080;
+            }
+
+            // Layout for multiple images
+            const items = [];
+            for (let i = 1; i <= 5; i++) {
+                const img = els.find(e => e.id === `productImg_${i}`);
+                if (img && img.img) {
+                    items.push(i);
+                }
+            }
+
+            const count = items.length;
+            if (count === 0) {
+                // If no images, hide all multi elements
+                els.forEach(el => { if (el.isMulti) el.hidden = true; });
+                render();
+                return;
+            }
+
+            const padding = 60;
+            const startY = 180;
+            const availableWidth = 1080 - (padding * 2);
+            const availableHeight = 1080 - startY - padding;
+
+            // Grid Layout Arrangement
+            // 1-2 images -> centered layout (1 column)
+            // 3-4 images -> two-column grid
+            // 5 images -> balanced grid layout (2 columns, 5th centered)
+            let cols = count >= 3 ? 2 : 1;
+            let rows = Math.ceil(count / cols);
+            
+            const cellW = availableWidth / cols;
+            const cellH = availableHeight / rows;
+
+            // Hide all multi elements first
+            els.forEach(el => { if (el.isMulti) el.hidden = true; });
+
+            items.forEach((idx, i) => {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                
+                let cx;
+                // Balanced grid: center the last item if it's alone in a row
+                if (row === rows - 1 && count % cols !== 0) {
+                    cx = padding + availableWidth / 2;
+                } else {
+                    cx = padding + col * cellW + cellW / 2;
+                }
+                const cy = startY + row * cellH + cellH / 2;
+
+                const img = els.find(e => e.id === `productImg_${idx}`);
+                const price = els.find(e => e.id === `price_${idx}`);
+                const fPrice = els.find(e => e.id === `formerPrice_${idx}`);
+                const desc = els.find(e => e.id === `desc_${idx}`);
+                const badge = els.find(e => e.id === `badge_${idx}`);
+
+                // Image Proportion Rule: Maintain original aspect ratio
+                const maxImgW = cellW * 0.85;
+                const maxImgH = cellH * 0.55;
+                if (img.img) {
+                    const aspect = img.img.width / img.img.height;
+                    if (aspect > maxImgW / maxImgH) {
+                        img.width = maxImgW;
+                        img.height = maxImgW / aspect;
+                    } else {
+                        img.height = maxImgH;
+                        img.width = maxImgH * aspect;
+                    }
+                }
+                
+                // Image Description Alignment: Directly under image
+                img.x = cx - img.width / 2;
+                img.y = cy - cellH * 0.4;
+                img.hidden = false;
+
+                let currentY = img.y + img.height + (count > 2 ? 15 : 25);
+                
+                desc.x = cx;
+                desc.y = currentY;
+                desc.fontSize = count > 2 ? 20 : 28;
+                desc.maxWidth = cellW * 0.9;
+                desc.hidden = (desc.text === '');
+                desc.textAlign = 'center';
+                desc.color = s.textColor;
+                
+                if (!desc.hidden) {
+                    currentY += (count > 2 ? 30 : 45);
+                }
+
+                price.x = cx;
+                price.y = currentY;
+                price.fontSize = count > 2 ? 40 : 60;
+                price.hidden = false;
+                price.textAlign = 'center';
+                price.color = s.textColor;
+                
+                currentY += (count > 2 ? 35 : 50);
+
+                if (fPrice) {
+                    const bTypeInput = document.getElementById(`w-badge-type_${idx}`);
+                    const bType = bTypeInput ? bTypeInput.value : '';
+                    fPrice.hidden = (bType !== 'Discount' || fPrice.text === '');
+                    if (!fPrice.hidden) {
+                        fPrice.x = cx;
+                        fPrice.y = currentY;
+                        fPrice.fontSize = count > 2 ? 22 : 32;
+                        fPrice.textAlign = 'center';
+                    }
+                }
+
+                // Badge (if selected) - Overlay on image
+                badge.x = cx + img.width / 2 - 5;
+                badge.y = img.y + 5;
+                badge.width = count > 2 ? 100 : 150;
+                badge.height = badge.width;
+                const bTypeInput = document.getElementById(`w-badge-type_${idx}`);
+                const bType = bTypeInput ? bTypeInput.value : '';
+                badge.hidden = (bType === '' || badge.text === '');
+            });
+        } else {
+            els.forEach(el => {
+                if (el.isMulti) el.hidden = true;
+                el.textAlign = 'center';
+                el.hidden = false;
+                el.isManual = false;
+                if (el.type === 'text') {
+                    el.fontWeight = '700';
+                    if (!el.isFormerPrice) el.color = s.textColor;
+                }
+                if (el.id === 'formerPrice' && !isDiscount) el.hidden = true;
+                if (el.id === 'badge' && badgeType === '') el.hidden = true;
+                if (el.id === 'bgImg') el.hidden = false; // Ensure bgImg is visible in single mode if not template 5
+                
+                if (id === 1) { // Bold Center Product
+                    if (el.id === 'bgImg') { el.opacity = 1; }
+                    if (el.id === 'productImg') { 
+                        const tw = 800, th = 600, tx = 140, ty = 150;
+                        if (el.img) {
+                            const aspect = el.img.width / el.img.height;
+                            if (aspect > tw/th) { el.width = tw; el.height = tw/aspect; }
+                            else { el.height = th; el.width = th*aspect; }
+                            el.x = tx + (tw - el.width)/2; el.y = ty + (th - el.height)/2;
+                        } else {
+                            el.x = tx; el.y = ty; el.width = tw; el.height = th;
+                        }
+                    }
+                    if (el.id === 'name') { el.x = 540; el.y = 800; el.fontSize = 70; }
+                    if (isDiscount) {
+                        if (el.id === 'price') { el.x = 540; el.y = 920; el.fontSize = 90; }
+                        if (el.id === 'formerPrice') { el.x = 540; el.y = 980; el.fontSize = 50; }
+                    } else {
+                        if (el.id === 'price') { el.x = 540; el.y = 940; el.fontSize = 90; }
+                    }
+                    if (el.id === 'desc') { el.x = 540; el.y = 1060; el.fontSize = 30; }
+                    if (el.id === 'badge') { el.x = 900; el.y = 100; el.width = 220; el.height = 220; }
+                    if (el.id === 'logo') { el.x = 50; el.y = 50; el.width = 150; el.height = 150; }
+                } else if (id === 2) { // Split Vertical Promo
+                    if (el.id === 'productImg') { 
+                        const tw = 500, th = 880, tx = 540, ty = 100;
+                        if (el.img) {
+                            const aspect = el.img.width / el.img.height;
+                            if (aspect > tw/th) { el.width = tw; el.height = tw/aspect; }
+                            else { el.height = th; el.width = th*aspect; }
+                            el.x = tx + (tw - el.width)/2; el.y = ty + (th - el.height)/2;
+                        } else {
+                            el.x = tx; el.y = ty; el.width = tw; el.height = th;
+                        }
+                    }
+                    if (el.id === 'name') { el.x = 270; el.y = 400; el.fontSize = 60; }
+                    if (isDiscount) {
+                        if (el.id === 'price') { el.x = 270; el.y = 580; el.fontSize = 100; }
+                        if (el.id === 'formerPrice') { el.x = 270; el.y = 640; el.fontSize = 50; }
+                    } else {
+                        if (el.id === 'price') { el.x = 270; el.y = 580; el.fontSize = 100; }
+                    }
+                    if (el.id === 'desc') { el.x = 270; el.y = 820; el.fontSize = 28; el.maxWidth = 450; }
+                    if (el.id === 'badge') { el.x = 540; el.y = 50; el.width = 180; el.height = 180; }
+                    if (el.id === 'logo') { el.x = 50; el.y = 50; el.width = 120; el.height = 120; }
+                } else if (id === 3) { // Price Focus Design
+                    if (el.id === 'productImg') { 
+                        const tw = 600, th = 450, tx = 240, ty = 50;
+                        if (el.img) {
+                            const aspect = el.img.width / el.img.height;
+                            if (aspect > tw/th) { el.width = tw; el.height = tw/aspect; }
+                            else { el.height = th; el.width = th*aspect; }
+                            el.x = tx + (tw - el.width)/2; el.y = ty + (th - el.height)/2;
+                        } else {
+                            el.x = tx; el.y = ty; el.width = tw; el.height = th;
+                        }
+                    }
+                    if (isDiscount) {
+                        if (el.id === 'price') { el.x = 540; el.y = 700; el.fontSize = 180; el.fontWeight = '900'; }
+                        if (el.id === 'formerPrice') { el.x = 540; el.y = 790; el.fontSize = 80; }
+                    } else {
+                        if (el.id === 'price') { el.x = 540; el.y = 700; el.fontSize = 180; el.fontWeight = '900'; }
+                    }
+                    if (el.id === 'name') { el.x = 540; el.y = 880; el.fontSize = 80; }
+                    if (el.id === 'desc') { el.x = 540; el.y = 980; el.fontSize = 35; }
+                    if (el.id === 'badge') { el.x = 800; el.y = 400; el.width = 250; el.height = 250; }
+                    if (el.id === 'logo') { el.x = 50; el.y = 50; el.width = 120; el.height = 120; }
+                } else if (id === 4) { // Bottom Panel Offer
+                    if (el.id === 'productImg') { 
+                        if (el.img) {
+                            const aspect = el.img.width / el.img.height;
+                            if (aspect > 1) { el.width = 1080; el.height = 1080/aspect; }
+                            else { el.height = 1080; el.width = 1080*aspect; }
+                            el.x = (1080 - el.width)/2; el.y = (1080 - el.height)/2;
+                        } else {
+                            el.x = 0; el.y = 0; el.width = 1080; el.height = 1080; 
+                        }
+                        el.opacity = 0.8;
+                    }
+                    if (el.id === 'name') { el.x = 540; el.y = 780; el.fontSize = 80; if (s.textColor === '#000000') el.color = '#ffffff'; }
+                    if (isDiscount) {
+                        if (el.id === 'price') { el.x = 540; el.y = 920; el.fontSize = 110; if (s.textColor === '#000000') el.color = '#ffffff'; }
+                        if (el.id === 'formerPrice') { el.x = 540; el.y = 990; el.fontSize = 60; if (s.textColor === '#000000') el.color = '#e2e8f0'; }
+                    } else {
+                        if (el.id === 'price') { el.x = 540; el.y = 920; el.fontSize = 110; if (s.textColor === '#000000') el.color = '#ffffff'; }
+                    }
+                    if (el.id === 'desc') { el.x = 540; el.y = 1060; el.fontSize = 30; if (s.textColor === '#000000') el.color = '#ffffff'; }
+                    if (el.id === 'badge') { el.x = 100; el.y = 100; el.width = 200; el.height = 200; }
+                    if (el.id === 'logo') { el.x = 900; el.y = 50; el.width = 120; el.height = 120; }
+                } else if (id === 5) { // Minimal Clean Layout
+                    state.whatsapp.bg = '#ffffff';
+                    if (el.id === 'bgImg') el.hidden = true;
+                    if (el.id === 'productImg') { 
+                        const tw = 500, th = 500, tx = 290, ty = 200;
+                        if (el.img) {
+                            const aspect = el.img.width / el.img.height;
+                            if (aspect > tw/th) { el.width = tw; el.height = tw/aspect; }
+                            else { el.height = th; el.width = th*aspect; }
+                            el.x = tx + (tw - el.width)/2; el.y = ty + (th - el.height)/2;
+                        } else {
+                            el.x = tx; el.y = ty; el.width = tw; el.height = th;
+                        }
+                    }
+                    if (el.id === 'name') { el.x = 540; el.y = 780; el.fontSize = 60; }
+                    if (isDiscount) {
+                        if (el.id === 'price') { el.x = 540; el.y = 890; el.fontSize = 100; }
+                        if (el.id === 'formerPrice') { el.x = 540; el.y = 950; el.fontSize = 50; }
+                    } else {
+                        if (el.id === 'price') { el.x = 540; el.y = 890; el.fontSize = 100; }
+                    }
+                    if (el.id === 'desc') { el.x = 540; el.y = 1040; el.fontSize = 28; }
+                    if (el.id === 'badge') { el.x = 850; el.y = 850; el.width = 180; el.height = 180; }
+                    if (el.id === 'logo') { el.x = 50; el.y = 50; el.width = 100; el.height = 100; }
+                }
+            });
+        }
+        render();
+        saveState();
+    }
+
+    function refreshWhatsappPrices() {
+        const currency = state.whatsapp.currency || '₦';
+        const s = state.whatsapp;
+        
+        // Update Single Mode
+        const priceIds = ['price', 'formerPrice'];
+        priceIds.forEach(id => {
+            const el = s.elements.find(e => e.id === id);
+            if (el && el.text) {
+                el.text = formatPriceWithCurrency(el.text, currency);
+                const input = document.getElementById(`w-${id === 'price' ? 'price' : 'former-price'}`);
+                if (input) input.value = el.text;
+            }
+        });
+
+        // Update Multi Mode
+        for (let i = 1; i <= 5; i++) {
+            const mPriceIds = [`price_${i}`, `formerPrice_${i}`];
+            mPriceIds.forEach(id => {
+                const el = s.elements.find(e => e.id === id);
+                if (el && el.text) {
+                    el.text = formatPriceWithCurrency(el.text, currency);
+                    const inputId = id.startsWith('price') ? `w-price_${i}` : `w-formerPrice_${i}`;
+                    const input = document.getElementById(inputId);
+                    if (input) input.value = el.text;
+                }
+            });
+        }
+    }
+
+    function formatPriceWithCurrency(val, currency) {
+        if (!val) return '';
+        let clean = val.trim();
+        const firstChar = clean.charAt(0);
+        
+        // If it starts with a digit, prepend the selected currency
+        if (/[0-9]/.test(firstChar)) {
+            return currency + clean;
+        }
+        
+        // If it starts with one of our default symbols but not the selected one, swap it
+        if ((clean.startsWith('₦') || clean.startsWith('$')) && !clean.startsWith(currency)) {
+            return currency + clean.substring(1).trim();
+        }
+        
+        // Otherwise (starts with custom symbol or already correct), leave it
+        return clean;
+    }
+
+    function updateField(tab, id, val) {
+        const el = state[tab].elements.find(e => e.id === id);
+        if (el) {
+            let finalVal = val;
+            if (tab === 'whatsapp' && (id.startsWith('price') || id.startsWith('formerPrice'))) {
+                const currency = state.whatsapp.currency || '₦';
+                finalVal = formatPriceWithCurrency(val, currency);
+                // Update input field to show formatted value
+                const input = document.activeElement;
+                if (input && (input.id === `w-${id === 'price' ? 'price' : 'former-price'}` || input.id === `w-${id}`)) {
+                    input.value = finalVal;
+                }
+            }
+            el.text = finalVal;
+            if (tab === 'whatsapp' && id === 'badge') {
+                el.hidden = (val === '');
+            }
+        }
+        if (tab === 'stamp') {
+            if (id === 'centerText') state.stamp.centerText = val;
+            if (id === 'company') state.stamp.company = val;
+            if (id === 'position') state.stamp.position = val;
+            if (id === 'showDate') state.stamp.showDate = val;
+            if (id === 'showLogo') state.stamp.showLogo = val;
+            if (id === 'showSignature') state.stamp.showSignature = val;
+            if (id === 'showPosition') state.stamp.showPosition = val;
+            if (id === 'randomRotate') state.stamp.randomRotate = val;
+            if (id === 'rotation') state.stamp.rotation = val;
+        }
+        render();
+        saveState();
+    }
+
+    function setWhatsappMode(mode) {
+        const currentMode = state.whatsapp.mode;
+        const isChange = currentMode && currentMode !== mode;
+
+        if (isChange) {
+            // Reset Canvas when switching modes
+            const s = state.whatsapp;
+            state.selectedId = null;
+            s.elements.forEach(el => {
+                if (el.type === 'image') {
+                    el.img = null;
+                    el.imgData = null;
+                } else if (el.type === 'text' || el.type === 'badge') {
+                    el.text = '';
+                    if (el.type === 'badge') el.hidden = true;
+                }
+            });
+
+            // Clear UI inputs
+            if (mode === 'single') {
+                document.getElementById('w-name').value = '';
+                document.getElementById('w-price').value = '';
+                document.getElementById('w-former-price').value = '';
+                document.getElementById('w-desc').value = '';
+                document.getElementById('w-badge-text').value = '';
+                document.getElementById('w-badge-type').value = '';
+            } else {
+                const slots = document.getElementById('w-multi-slots');
+                if (slots) {
+                    for (let i = 1; i <= 5; i++) {
+                        const bType = document.getElementById(`w-badge-type_${i}`);
+                        const bText = document.getElementById(`w-badge_${i}`);
+                        const fPrice = document.getElementById(`w-formerPrice_${i}`);
+                        const price = document.getElementById(`w-price_${i}`);
+                        const desc = document.getElementById(`w-desc_${i}`);
+                        if (bType) bType.value = '';
+                        if (bText) bText.value = '';
+                        if (fPrice) fPrice.value = '';
+                        if (price) price.value = '';
+                        if (desc) desc.value = '';
+                    }
+                }
+            }
+        }
+
+        state.whatsapp.mode = mode;
+        const s = state.whatsapp;
+        
+        const singleIds = ['productImg', 'name', 'price', 'formerPrice', 'desc', 'badge'];
+        s.elements.forEach(el => {
+            if (singleIds.includes(el.id)) {
+                el.hidden = (mode === 'multiple');
+            }
+            if (el.isMulti) {
+                el.hidden = (mode === 'single');
+            }
+        });
+
+        document.getElementById('w-single-panel').classList.toggle('hidden', mode === 'multiple');
+        document.getElementById('w-multiple-panel').classList.toggle('hidden', mode === 'single');
+        
+        if (mode === 'multiple' && document.getElementById('w-multi-slots').innerHTML === '') {
+            generateWhatsappMultiSlots();
+        }
+        
+        applyWhatsappTemplate(s.template);
+        render();
+        saveState();
+    }
+
+    function generateWhatsappMultiSlots() {
+        const container = document.getElementById('w-multi-slots');
+        container.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'panel';
+            slot.style.border = '1px solid var(--border)';
+            slot.style.padding = '0.5rem';
+            slot.style.marginBottom = '1rem';
+            slot.innerHTML = `
+                <div class="panel-title" style="font-size: 0.75rem;">Picture ${i}</div>
+                <div class="file-input-wrapper" style="margin-bottom: 0.5rem;">
+                    <div class="file-input-btn" style="padding: 0.4rem; font-size: 0.7rem;">Upload Image ${i}</div>
+                    <input type="file" accept="image/*" onchange="handleUpload(event, 'whatsapp', 'productImg_${i}')">
+                </div>
+                <div class="control-group">
+                    <label style="font-size: 0.65rem;">Badge Type</label>
+                    <select id="w-badge-type_${i}" onchange="handleMultiBadgeChange(${i}, this.value)" style="font-size: 0.7rem; padding: 0.2rem; width: 100%; margin-bottom: 0.5rem;">
+                        <option value="">No Badge</option>
+                        <option value="Discount">Discount</option>
+                        <option value="New Arrival">New Arrival</option>
+                        <option value="Limited Offer">Limited Offer</option>
+                        <option value="Best Seller">Best Seller</option>
+                        <option value="Special Offer">Special Offer</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <textarea id="w-badge_${i}" placeholder="Badge Text" rows="1" class="hidden" style="font-size: 0.7rem; margin-bottom: 0.5rem; width: 100%;" oninput="updateMultiField(${i}, 'badge', this.value)"></textarea>
+                
+                <div id="w-price-container_${i}">
+                    <div id="w-price-labels_${i}" class="hidden" style="display: flex; gap: 0.5rem; margin-bottom: 0.2rem;">
+                        <label style="flex:1; font-size: 0.6rem; font-weight: 600;">Old Price</label>
+                        <label style="flex:1; font-size: 0.6rem; font-weight: 600;">New Price</label>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <textarea id="w-formerPrice_${i}" placeholder="Old Price" rows="1" class="hidden" style="font-size: 0.7rem; width: 100%;" oninput="updateMultiField(${i}, 'formerPrice', this.value)"></textarea>
+                        <textarea id="w-price_${i}" placeholder="Price" rows="1" style="font-size: 0.7rem; width: 100%;" oninput="updateMultiField(${i}, 'price', this.value)"></textarea>
+                    </div>
+                </div>
+                <textarea id="w-desc_${i}" rows="1" placeholder="Description (Optional)" style="font-size: 0.7rem; margin-top: 0.5rem; width: 100%;" oninput="updateMultiField(${i}, 'desc', this.value)"></textarea>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; padding: 0.3rem; font-size: 0.7rem; color: #ef4444; border-color: #ef4444;" onclick="removeProductSlot(${i})">Remove Product</button>
+            `;
+            container.appendChild(slot);
+        }
+    }
+
+    function removeProductSlot(index) {
+        const s = state.whatsapp;
+        const ids = [`productImg_${index}`, `name_${index}`, `price_${index}`, `formerPrice_${index}`, `desc_${index}`, `badge_${index}`];
+        s.elements.forEach(el => {
+            if (ids.includes(el.id)) {
+                if (el.type === 'image') {
+                    el.img = null;
+                    el.imgData = null;
+                } else {
+                    el.text = '';
+                }
+            }
+        });
+        // Clear UI inputs
+        const badgeInput = document.getElementById(`w-badge_${index}`);
+        const formerPriceInput = document.getElementById(`w-formerPrice_${index}`);
+        const priceInput = document.getElementById(`w-price_${index}`);
+        const descInput = document.getElementById(`w-desc_${index}`);
+        const badgeTypeInput = document.getElementById(`w-badge-type_${index}`);
+        
+        if (badgeInput) badgeInput.value = '';
+        if (formerPriceInput) formerPriceInput.value = '';
+        if (priceInput) priceInput.value = '';
+        if (descInput) descInput.value = '';
+        if (badgeTypeInput) badgeTypeInput.value = '';
+        
+        render();
+        saveState();
+    }
+
+    function handleMultiBadgeChange(index, val) {
+        const badgeText = document.getElementById(`w-badge_${index}`);
+        const priceLabels = document.getElementById(`w-price-labels_${index}`);
+        const formerPriceInput = document.getElementById(`w-formerPrice_${index}`);
+        const priceInput = document.getElementById(`w-price_${index}`);
+        
+        const badgeEl = state.whatsapp.elements.find(e => e.id === `badge_${index}`);
+        const formerPriceEl = state.whatsapp.elements.find(e => e.id === `formerPrice_${index}`);
+
+        if (val === 'Custom') {
+            badgeText.classList.remove('hidden');
+        } else {
+            badgeText.classList.add('hidden');
+            badgeText.value = val;
+            if (badgeEl) {
+                badgeEl.text = val;
+                badgeEl.hidden = (val === '');
+            }
+        }
+
+        if (val === 'Discount') {
+            priceLabels.classList.remove('hidden');
+            formerPriceInput.classList.remove('hidden');
+            if (formerPriceEl) formerPriceEl.hidden = false;
+            priceInput.placeholder = "New Price";
+        } else {
+            priceLabels.classList.add('hidden');
+            formerPriceInput.classList.add('hidden');
+            if (formerPriceEl) formerPriceEl.hidden = true;
+            priceInput.placeholder = "Price";
+        }
+        
+        applyWhatsappTemplate(state.whatsapp.template);
+        render();
+        saveState();
+    }
+
+    function updateMultiField(index, type, val) {
+        let id = '';
+        if (type === 'badge') id = `badge_${index}`;
+        else if (type === 'price') id = `price_${index}`;
+        else if (type === 'formerPrice') id = `formerPrice_${index}`;
+        else if (type === 'desc') id = `desc_${index}`;
+        
+        const el = state.whatsapp.elements.find(e => e.id === id);
+        if (el) {
+            el.text = val;
+            if (type === 'badge') el.hidden = (val === '');
+        }
+        applyWhatsappTemplate(state.whatsapp.template);
+        render();
+        saveState();
+    }
+
+    function handleBadgeChange(val) {
+        const badgeTextInput = document.getElementById('w-badge-text');
+        badgeTextInput.value = val;
+        
+        const badgeEl = state.whatsapp.elements.find(e => e.id === 'badge');
+        if (badgeEl) {
+            badgeEl.text = val;
+            badgeEl.hidden = (val === '');
+        }
+        
+        const priceLabels = document.getElementById('w-price-labels');
+        const formerPriceInput = document.getElementById('w-former-price');
+        const priceInput = document.getElementById('w-price');
+        
+        const formerPriceEl = state.whatsapp.elements.find(e => e.id === 'formerPrice');
+
+        if (val === 'Discount') {
+            priceLabels.classList.remove('hidden');
+            formerPriceInput.classList.remove('hidden');
+            if (formerPriceEl) formerPriceEl.hidden = false;
+            priceInput.placeholder = "Enter New Price (Numerical)";
+        } else {
+            priceLabels.classList.add('hidden');
+            formerPriceInput.classList.add('hidden');
+            if (formerPriceEl) formerPriceEl.hidden = true;
+            priceInput.placeholder = "Enter Price (Numerical)";
+        }
+        
+        applyWhatsappTemplate(state.whatsapp.template);
+        render();
+        saveState();
+    }
+
+    function updateWhatsappTextColor(val) {
+        state.whatsapp.textColor = val;
+        state.whatsapp.elements.forEach(el => {
+            if (el.type === 'text' && !el.isFormerPrice) {
+                el.color = val;
+            }
+        });
+        render();
+        saveState();
+    }
+
+    function updateCardTextColor(val) {
+        state.card.textColor = val;
+        state.card.elements.forEach(el => {
+            if (el.type === 'text') {
+                el.color = val;
+            }
+        });
+        render();
+        saveState();
+    }
+
+    function adjustSelectedSize(delta) {
+        const el = getSelectedElement();
+        if (!el) return;
+        
+        if (el.type === 'text') {
+            el.fontSize = Math.max(8, (el.fontSize || 20) + delta);
+        } else if (el.type === 'image' || el.type === 'badge') {
+            const ratio = (el.width || 100) / (el.height || 100);
+            el.width = Math.max(20, (el.width || 100) + delta);
+            el.height = el.width / ratio;
+        }
+        render();
+        saveState();
+    }
+
+    function updateSelectedSize(val) {
+        const el = getSelectedElement();
+        if (el) {
+            if (el.type === 'text') el.fontSize = parseInt(val);
+            else {
+                const aspect = (el.height || 1) / (el.width || 1);
+                el.width = parseInt(val);
+                el.height = el.width * aspect;
+            }
+            render();
+            saveState();
+        }
+    }
+
+    function updateElementSize(id, val) {
+        const el = state.stamp.elements.find(e => e.id === id);
+        if (el) {
+            if (el.type === 'text') el.fontSize = parseInt(val);
+            else {
+                const aspect = (el.height || 1) / (el.width || 1);
+                el.width = parseInt(val);
+                el.height = el.width * aspect;
+            }
+            render();
+        }
+    }
+
+    function updateOpacity(tab, id, val) {
+        const el = state[tab].elements.find(e => e.id === id);
+        if (el) el.opacity = val / 100;
+        render();
+    }
+
+    function updateColor(tab, type, val) {
+        if (type === 'bg') state[tab].bg = val;
+        if (type === 'primary') {
+            state[tab].primary = val;
+            state[tab].elements.forEach(el => {
+                if (el.id === 'biz' || el.id === 'pos') el.color = val;
+            });
+        }
+        if (type === 'color') state[tab].color = val;
+
+        // Auto-adjust text colors for contrast based on template layout (Card Designer only)
+        if (tab === 'card') {
+            const s = state.card;
+            const bgContrast = getContrastColor(s.bg);
+            const priContrast = getContrastColor(s.primary);
+
+            s.elements.forEach(el => {
+                if (el.isManual || el.type !== 'text') return;
+
+                // Template-specific contrast zones
+                if (s.template === 1) { // Corporate: Left 30% is Primary
+                    el.color = (el.x < canvas.width * 0.3) ? priContrast : bgContrast;
+                } else if (s.template === 2) { // Modern: Top 35% is Primary
+                    el.color = (el.y < canvas.height * 0.35) ? priContrast : bgContrast;
+                } else if (s.template === 3) { // Split: Right 50% is Primary
+                    el.color = (el.x > canvas.width * 0.5) ? priContrast : bgContrast;
+                } else if (s.template === 4) { // Diagonal: Left side is Primary
+                    const diagonalX = (canvas.width * 0.38) + (el.y / canvas.height) * (canvas.width * 0.14);
+                    el.color = (el.x < diagonalX) ? priContrast : bgContrast;
+                } else {
+                    el.color = bgContrast;
+                }
+
+                // Social handles update with primary color by default unless manually overridden
+                if (el.isSocial && !el.isManualColor) {
+                    el.color = s.primary;
+                }
+            });
+        }
+
+        render();
+        saveState();
+    }
+
+    function updateStampShape(val) {
+        state.stamp.shape = val;
+        const els = state.stamp.elements;
+        els.forEach(el => {
+            if (el.isCurved) el.hidden = (val === 'rectangular');
+            if (el.id === 'company' && val === 'rectangular') { el.x = 0; el.y = -330; el.isCurved = false; el.hidden = false; }
+            if (el.id === 'date' && val === 'rectangular') { el.x = 0; el.y = 350; el.isCurved = false; el.hidden = false; }
+            if (el.id === 'signatureImg' && val === 'rectangular') { el.x = -200; el.y = 450; el.hidden = false; }
+            if (el.id === 'position' && val === 'rectangular') { el.x = 0; el.y = 680; el.hidden = false; }
+            if (el.id === 'company' && val === 'circular') { el.x = 0; el.y = -530; el.isCurved = true; el.arc = 'top'; }
+            if (el.id === 'date' && val === 'circular') { el.x = 0; el.y = 350; el.isCurved = false; }
+        });
+        render();
+    }
+
+    function handleStampType(val) {
+        if (val !== 'CUSTOM') {
+            const input = document.getElementById('stampCenterText');
+            if (input) input.value = val;
+            updateField('stamp', 'centerText', val);
+        }
+    }
+
+    function removeBackgroundFromSelected() {
+        const el = getSelectedElement();
+        if (el && el.img) {
+            removeBackground(state.tab, el.id);
+        } else {
+            alert("Please select an image on the canvas first by clicking on it.");
+        }
+    }
+
+    function removeBackground(tab, id) {
+        const el = state[tab].elements.find(e => e.id === id);
+        if (!el || !el.img) return;
+        
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = el.img.width;
+        tempCanvas.height = el.img.height;
+        tempCtx.drawImage(el.img, 0, 0);
+        
+        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const data = imageData.data;
+        
+        // Sample the corner pixel as the background color
+        const targetR = data[0];
+        const targetG = data[1];
+        const targetB = data[2];
+        const threshold = 60; // Tolerance for similar colors
+        
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i], g = data[i+1], b = data[i+2];
+            const dist = Math.sqrt(
+                Math.pow(r - targetR, 2) + 
+                Math.pow(g - targetG, 2) + 
+                Math.pow(b - targetB, 2)
+            );
+            if (dist < threshold) {
+                data[i+3] = 0; // Set alpha to 0 (transparent)
+            }
+        }
+        
+        tempCtx.putImageData(imageData, 0, 0);
+        const newImg = new Image();
+        newImg.onload = () => {
+            el.img = newImg;
+            el.imgData = tempCanvas.toDataURL(); // Update persistence data
+            render();
+            saveState();
+        };
+        newImg.src = tempCanvas.toDataURL();
+    }
+
+    function handleUpload(e, tab, id) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const el = state[tab].elements.find(e => e.id === id);
+                if (el) {
+                    el.img = img;
+                    el.imgData = ev.target.result; // Store for persistence
+                    if (tab === 'whatsapp' && (id === 'productImg' || id.startsWith('productImg_'))) {
+                        const maxDim = (id === 'productImg') ? 700 : 300;
+                        const aspect = img.width / img.height;
+                        if (aspect > 1) {
+                            el.width = maxDim;
+                            el.height = maxDim / aspect;
+                        } else {
+                            el.height = maxDim;
+                            el.width = maxDim * aspect;
+                        }
+                        if (id === 'productImg') {
+                            el.x = (canvas.width - el.width) / 2;
+                            el.y = (canvas.height - el.height) / 2 - 50;
+                        }
+                    } else if (el.type === 'image' && !el.isLocked) {
+                        const aspect = img.height / img.width;
+                        el.height = el.width * aspect;
+                    }
+                }
+                if (tab === 'whatsapp') applyWhatsappTemplate(state.whatsapp.template);
+                render();
+                saveState();
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    let lastTouchDistance = 0;
+    function setupCanvasEvents() {
+        const mainCanvas = document.getElementById('main-canvas');
+        const stampCanvas = document.getElementById('stampCanvas');
+
+        const handleStart = (e) => {
+            const activeCanvas = state.tab === 'stamp' ? stampCanvas : mainCanvas;
+            if (e.touches && e.touches.length === 2) {
+                lastTouchDistance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                return;
+            }
+            const { x, y } = getMousePos(e, activeCanvas);
+            state.hasMoved = false;
+            
+            // Check for rotation handle
+            if (state.selectedId) {
+                const el = getSelectedElement();
+                if (el && !el.isLocked) {
+                    const bounds = getElementBounds(el, activeCanvas.getContext('2d'));
+                    const rx = bounds.x + bounds.width / 2;
+                    const ry = bounds.y - 30 / state.zoom;
+                    if (Math.hypot(x - rx, y - ry) < (HANDLE_SIZE * 2) / state.zoom) {
+                        state.isRotating = true;
+                        return;
+                    }
+                }
+            }
+
+            // Check for resize handle first
+            if (state.selectedId) {
+                const el = getSelectedElement();
+                if (el && !el.isLocked) {
+                    const bounds = getElementBounds(el, activeCanvas.getContext('2d'));
+                    const { x: ex, y: ey, width: ew, height: eh } = bounds;
+
+                    const corners = [
+                        { x: ex, y: ey }, // Top-left
+                        { x: ex + ew, y: ey }, // Top-right
+                        { x: ex, y: ey + eh }, // Bottom-left
+                        { x: ex + ew, y: ey + eh } // Bottom-right
+                    ];
+
+                    for (let i = 0; i < corners.length; i++) {
+                        const corner = corners[i];
+                        if (Math.hypot(x - corner.x, y - corner.y) < (HANDLE_SIZE * 3) / state.zoom) {
+                            state.isResizing = true;
+                            state.initialResizeData = { 
+                                fontSize: el.fontSize, 
+                                width: el.width || ew, 
+                                height: el.height || eh, 
+                                x: x, 
+                                y: y,
+                                corner: i,
+                                corners: corners
+                            };
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Check for elements
+            const els = [...state[state.tab].elements].reverse();
+            for (const el of els) {
+                if (el.hidden) continue;
+                if (isPointInElement(x, y, el, activeCanvas)) {
+                    state.selectedId = el.id;
+                    state.isDragging = true;
+                    state.dragOffset = { x: x - el.x, y: y - el.y };
+                    render();
+                    return;
+                }
+            }
+            state.selectedId = null;
+            render();
+        };
+
+        const handleMove = (e) => {
+            const activeCanvas = state.tab === 'stamp' ? stampCanvas : mainCanvas;
+            if (e.touches && e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                if (lastTouchDistance > 0) {
+                    const delta = dist / lastTouchDistance;
+                    state.zoom = Math.max(0.5, Math.min(5, state.zoom * delta));
+                }
+                lastTouchDistance = dist;
+                render();
+                return;
+            }
+            if (!state.isDragging && !state.isResizing && !state.isRotating) return;
+            const { x, y } = getMousePos(e, activeCanvas);
+            state.hasMoved = true;
+            const el = getSelectedElement();
+            if (!el || el.isLocked) return;
+
+            if (state.isRotating) {
+                el.isManual = true;
+                let cx = el.x + (el.width || 0)/2;
+                let cy = el.y + (el.height || 0)/2;
+                let angle = Math.atan2(y - cy, x - cx) + Math.PI/2;
+                // Snap to 0, 90, 180, 270
+                if (Math.abs(angle) < 0.1) angle = 0;
+                if (Math.abs(angle - Math.PI/2) < 0.1) angle = Math.PI/2;
+                if (Math.abs(angle + Math.PI/2) < 0.1) angle = -Math.PI/2;
+                if (Math.abs(Math.abs(angle) - Math.PI) < 0.1) angle = Math.PI;
+                el.rotation = angle;
+            } else if (state.isResizing) {
+                el.isManual = true;
+                const oppositeCorner = state.initialResizeData.corners[3 - state.initialResizeData.corner];
+                const currentDist = Math.hypot(x - oppositeCorner.x, y - oppositeCorner.y);
+                const initialDist = Math.hypot(state.initialResizeData.x - oppositeCorner.x, state.initialResizeData.y - oppositeCorner.y);
+                const scale = currentDist / initialDist;
+
+                if (el.type === 'text') {
+                    el.fontSize = Math.max(8, Math.round(state.initialResizeData.fontSize * scale));
+                } else {
+                    el.width = Math.max(20, state.initialResizeData.width * scale);
+                    el.height = Math.max(20, state.initialResizeData.height * scale);
+                }
+            } else if (state.isDragging) {
+                el.isManual = true; // Mark as manually moved
+                el.x = x - state.dragOffset.x;
+                el.y = y - state.dragOffset.y;
+                
+                if (state.tab === 'stamp') {
+                    const limit = (state.stamp.shape === 'circular') ? 600 : 800;
+                    el.x = Math.max(-limit, Math.min(limit, el.x));
+                    el.y = Math.max(-limit, Math.min(limit, el.y));
+                }
+            }
+            render();
+        };
+
+        const handleEnd = () => {
+            state.isDragging = false;
+            state.isResizing = false;
+            state.isRotating = false;
+            lastTouchDistance = 0;
+        };
+
+        [mainCanvas, stampCanvas].forEach(c => {
+            if (!c) return;
+            c.addEventListener('mousedown', handleStart);
+            c.addEventListener('touchstart', (e) => { if (e.touches.length === 1) handleStart(e); else if (e.touches.length === 2) handleStart(e); e.preventDefault(); }, { passive: false });
+            
+            c.onclick = (e) => {
+                if (state.hasMoved) return;
+                render();
+            };
+        });
+        
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', (e) => { if (state.isDragging || state.isResizing || state.isRotating || e.touches.length === 2) { e.preventDefault(); handleMove(e); } }, { passive: false });
+        
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
+
+        window.onkeydown = (e) => {
+            if (!state.selectedId) return;
+            const el = getSelectedElement();
+            if (!el || el.type !== 'text') return;
+
+            if (e.key === '=' || e.key === '+') { el.fontSize += 2; render(); e.preventDefault(); }
+            if (e.key === '-' || e.key === '_') { el.fontSize = Math.max(8, el.fontSize - 2); render(); e.preventDefault(); }
+        };
+    }
+
+    function getFormattedText(el) {
+        let textToDraw = el.text;
+        if (state.tab === 'whatsapp' && (el.id.startsWith('price') || el.id.startsWith('formerPrice'))) {
+            const currency = state.whatsapp.currency || '₦';
+            if (textToDraw && !textToDraw.startsWith(currency) && !textToDraw.startsWith('$') && !textToDraw.startsWith('₦')) {
+                textToDraw = currency + textToDraw;
+            }
+        }
+        return textToDraw;
+    }
+
+    function getMousePos(e, targetCanvas = canvas) {
+        const rect = targetCanvas.getBoundingClientRect();
+        let clientX, clientY;
+        
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+        
+        const x = (clientX - rect.left) * (targetCanvas.width / rect.width);
+        const y = (clientY - rect.top) * (targetCanvas.height / rect.height);
+        
+        let finalX = (x - state.pan.x) / state.zoom;
+        let finalY = (y - state.pan.y) / state.zoom;
+
+        if (state.tab === 'stamp') {
+            finalX -= targetCanvas.width / 2;
+            finalY -= targetCanvas.height / 2;
+        }
+
+        return { x: finalX, y: finalY };
+    }
+
+    function getElementBounds(el, targetCtx = ctx) {
+        let ex = el.x, ey = el.y, ew = el.width || 0, eh = el.height || 0;
+        
+        if (el.type === 'text') {
+            targetCtx.save();
+            targetCtx.font = `${el.fontWeight || 'bold'} ${el.fontSize}px Inter, sans-serif`;
+            const textToDraw = getFormattedText(el);
+            const lines = String(textToDraw || '').split('\n');
+            let maxWidth = 0;
+            lines.forEach(line => {
+                const w = targetCtx.measureText(line).width;
+                if (w > maxWidth) maxWidth = w;
+            });
+            ew = maxWidth;
+            eh = el.fontSize * lines.length * 1.2;
+            if (el.textAlign === 'center') ex -= ew / 2;
+            // For stamp centerText, baseline is middle, so y is center
+            if (state.tab === 'stamp') {
+                ey -= eh / 2;
+            } else {
+                ey -= el.fontSize;
+            }
+            targetCtx.restore();
+        } else if (el.type === 'badge' || el.type === 'border') {
+            ew = el.width;
+            eh = el.height || el.width;
+            ex -= ew / 2;
+            ey -= eh / 2;
+        }
+        
+        return { x: ex, y: ey, width: ew, height: eh };
+    }
+
+    function isPointInElement(x, y, el, targetCanvas = canvas) {
+        const bounds = getElementBounds(el, targetCanvas.getContext('2d'));
+        const padding = el.type === 'text' ? 20 : 10;
+        return x >= bounds.x - padding && x <= bounds.x + bounds.width + padding && 
+               y >= bounds.y - padding && y <= bounds.y + bounds.height + padding;
+    }
+
+    function getSelectedElement() {
+        return state[state.tab].elements.find(e => e.id === state.selectedId);
+    }
+
+    function adjustFontSize(delta) {
+        const el = getSelectedElement();
+        if (el && el.type === 'text') {
+            el.fontSize = Math.max(8, el.fontSize + delta);
+            render();
+        }
+    }
+
+    function updateSelectedColor(val) {
+        const el = getSelectedElement();
+        if (el && el.type === 'text') {
+            el.color = val;
+            if (el.isSocial) el.isManualColor = true; // Mark as manually colored
+            render();
+            saveState();
+        }
+    }
+
+    function updateSelectedOpacity(val) {
+        const el = getSelectedElement();
+        if (el && (el.type === 'image' || el.type === 'badge')) {
+            el.opacity = val / 100;
+            render();
+            saveState();
+        }
+    }
+
+    function deselectElement() {
+        state.selectedId = null;
+        render();
+    }
+
+    function render() {
+        const activeCanvas = state.tab === 'stamp' ? document.getElementById('stampCanvas') : canvas;
+        const activeCtx = activeCanvas.getContext('2d');
+        
+        activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+        
+        if (state.tab === 'stamp') {
+            renderStampPreview();
+            return; // renderStampPreview handles its own drawing logic
+        }
+
+        ctx.save();
+        ctx.translate(state.pan.x, state.pan.y);
+        ctx.scale(state.zoom, state.zoom);
+        
+        const s = state[state.tab];
+        
+        // Background logic
+        if (state.tab === 'card') {
+            ctx.fillStyle = s.bg || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (s.template === 1) {
+                ctx.fillStyle = s.primary;
+                ctx.fillRect(0, 0, canvas.width * 0.3, canvas.height);
+            } else if (s.template === 2) {
+                ctx.fillStyle = s.primary;
+                ctx.fillRect(0, 0, canvas.width, canvas.height * 0.35);
+            } else if (s.template === 3) {
+                ctx.fillStyle = s.bg;
+                ctx.fillRect(0, 0, canvas.width * 0.5, canvas.height);
+                ctx.fillStyle = s.primary;
+                ctx.fillRect(canvas.width * 0.5, 0, canvas.width * 0.5, canvas.height);
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.beginPath(); ctx.moveTo(canvas.width/2, 0); ctx.lineTo(canvas.width/2, canvas.height); ctx.stroke();
+            } else if (s.template === 4) {
+                ctx.fillStyle = s.primary;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(canvas.width * 0.38, 0);
+                ctx.lineTo(canvas.width * 0.52, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+            } else if (s.template === 5) {
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const slogan = s.elements.find(e => e.id === 'slogan');
+                if (slogan) {
+                    ctx.strokeStyle = s.primary;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(slogan.x, slogan.y + 15);
+                    ctx.lineTo(slogan.x + 300, slogan.y + 15);
+                    ctx.stroke();
+                }
+            } else if (s.template === 6) { // Orange Circle
+                // Main soft orange circle with gradient
+                const grad = ctx.createRadialGradient(canvas.width, canvas.height / 2, 0, canvas.width, canvas.height / 2, 350);
+                grad.addColorStop(0, '#ff9d5c');
+                grad.addColorStop(1, '#ff781f');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(canvas.width, canvas.height / 2, 300, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Accent circles
+                ctx.fillStyle = '#ff781f';
+                ctx.globalAlpha = 0.15;
+                ctx.beginPath(); ctx.arc(canvas.width - 150, 100, 60, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(canvas.width - 50, canvas.height - 50, 120, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(100, 100, 30, 0, Math.PI * 2); ctx.fill();
+                
+                ctx.globalAlpha = 0.05;
+                ctx.beginPath(); ctx.arc(200, canvas.height / 2, 150, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+            } else if (s.template === 7) { // Digital Border
+                ctx.strokeStyle = s.primary;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 5]);
+                ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+                ctx.setLineDash([]);
+                
+                ctx.lineWidth = 1;
+                ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                
+                // Tech accents
+                ctx.fillStyle = s.primary;
+                const size = 40;
+                // Corners
+                ctx.fillRect(20, 20, size, 4); ctx.fillRect(20, 20, 4, size);
+                ctx.fillRect(canvas.width - 20 - size, 20, size, 4); ctx.fillRect(canvas.width - 24, 20, 4, size);
+                ctx.fillRect(20, canvas.height - 24, size, 4); ctx.fillRect(20, canvas.height - 20 - size, 4, size);
+                ctx.fillRect(canvas.width - 20 - size, canvas.height - 24, size, 4); ctx.fillRect(canvas.width - 24, canvas.height - 20 - size, 4, size);
+                
+                // Dots
+                ctx.globalAlpha = 0.5;
+                for(let i=0; i<3; i++) {
+                    ctx.beginPath(); ctx.arc(canvas.width/2 - 20 + i*20, 20, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(canvas.width/2 - 20 + i*20, canvas.height - 20, 3, 0, Math.PI*2); ctx.fill();
+                }
+                ctx.globalAlpha = 1.0;
+            } else if (s.template === 8) { // Geometric
+                ctx.fillStyle = s.primary;
+                
+                ctx.save();
+                ctx.globalAlpha = 0.1;
+                ctx.translate(canvas.width - 100, 100);
+                ctx.rotate(Math.PI / 4);
+                ctx.fillRect(-150, -150, 300, 300);
+                ctx.restore();
+                
+                ctx.globalAlpha = 0.2;
+                ctx.beginPath();
+                ctx.arc(canvas.width - 50, canvas.height - 50, 200, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.globalAlpha = 0.15;
+                ctx.fillRect(0, 0, 150, canvas.height);
+                
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - 200, canvas.height);
+                ctx.lineTo(canvas.width, canvas.height - 200);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            } else if (s.template === 9) { // Corner Accent
+                ctx.fillStyle = s.primary;
+                
+                // Top right layered accent
+                ctx.globalAlpha = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - 250, 0);
+                ctx.lineTo(canvas.width, 0);
+                ctx.lineTo(canvas.width, 250);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - 300, 0);
+                ctx.lineTo(canvas.width, 0);
+                ctx.lineTo(canvas.width, 300);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Bottom left accent
+                ctx.globalAlpha = 0.2;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height - 200);
+                ctx.lineTo(0, canvas.height);
+                ctx.lineTo(200, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Decorative lines
+                ctx.globalAlpha = 0.4;
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = s.primary;
+                ctx.beginPath();
+                ctx.moveTo(20, canvas.height - 220);
+                ctx.lineTo(220, canvas.height - 20);
+                ctx.stroke();
+                
+                ctx.globalAlpha = 1.0;
+            }
+
+            // Dynamic Vertical Distribution for Card
+            const biz = s.elements.find(e => e.id === 'biz');
+            const slogan = s.elements.find(e => e.id === 'slogan');
+            const name = s.elements.find(e => e.id === 'name');
+            const pos = s.elements.find(e => e.id === 'pos');
+            const contactIds = ['phone', 'email', 'address'];
+            const contactEls = s.elements.filter(e => contactIds.includes(e.id) && e.text);
+            const socialIds = ['instagram', 'facebook', 'tiktok', 'linkedin', 'youtube'];
+            const socialEls = s.elements.filter(e => socialIds.includes(e.id) && e.text);
+
+            // Spacing rules
+            const lineGap = 12;
+            const bizSloganGap = 10;
+            const sloganNameGap = 16;
+            const namePosGap = 12;
+            const posContactGap = 12;
+
+            // Build content sections based on template
+            const sections = [];
+            
+            if (s.template === 1) { // Corporate: Left (Header) / Right (Body) split
+                const headerEls = [];
+                if (biz && biz.text) headerEls.push(biz);
+                if (slogan && slogan.text) headerEls.push(slogan);
+                
+                const bodyEls = [];
+                if (name && name.text) bodyEls.push(name);
+                if (pos && pos.text) bodyEls.push(pos);
+                contactEls.forEach(el => bodyEls.push(el));
+                
+                // Header section (Left)
+                let hHeight = 0;
+                headerEls.forEach((el, i) => {
+                    const linesCount = String(el.text || '').split('\n').length;
+                    hHeight += (el.fontSize * linesCount * 1.2) + (i > 0 ? 10 : 0);
+                });
+                sections.push({ type: 'header', elements: headerEls, height: hHeight, x: 60 });
+                
+                // Body section (Right)
+                let bHeight = 0;
+                bodyEls.forEach((el, i) => {
+                    let gap = 0;
+                    if (i > 0) {
+                        const prevEl = bodyEls[i-1];
+                        if (prevEl.id === 'name' && el.id === 'pos') gap = 12; // 12px gap
+                        else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = 16; // 16px gap
+                        else gap = lineGap;
+                    }
+                    const linesCount = String(el.text || '').split('\n').length;
+                    bHeight += (el.fontSize * linesCount * 1.2) + gap;
+                });
+                
+                // Social section (Right, below body)
+                let socialHeight = 0;
+                let socialLayoutData = [];
+                if (socialEls.length > 0) {
+                    const baseStartX = 400;
+                    const maxWidth = canvas.width - 50;
+                    const horizontalGap = 20;
+                    let tempX = baseStartX;
+                    let tempYOffset = 0;
+                    let rows = 1;
+                    socialEls.forEach(el => {
+                        ctx.font = `${el.fontSize}px Inter, sans-serif`;
+                        const totalWidth = el.fontSize * 1.4 + ctx.measureText(el.text).width;
+                        if (tempX + totalWidth > maxWidth && tempX > baseStartX) {
+                            tempX = baseStartX;
+                            tempYOffset += el.fontSize * 1.4;
+                            rows++;
+                        }
+                        socialLayoutData.push({ id: el.id, x: tempX, yOffset: tempYOffset });
+                        tempX += totalWidth + horizontalGap;
+                    });
+                    socialHeight = rows * (socialEls[0].fontSize * 1.4);
+                }
+                
+                sections.push({ type: 'body', elements: bodyEls, height: bHeight, x: 400 });
+                if (socialEls.length > 0) sections.push({ type: 'social', elements: socialEls, height: socialHeight, layout: socialLayoutData, x: 400 });
+
+            } else if (s.template === 2) { // Modern: Top (Header) / Bottom (Body) split
+                const headerEls = [];
+                if (biz && biz.text) headerEls.push(biz);
+                if (slogan && slogan.text) headerEls.push(slogan);
+                
+                const bodyEls = [];
+                if (name && name.text) bodyEls.push(name);
+                if (pos && pos.text) bodyEls.push(pos);
+                contactEls.forEach(el => bodyEls.push(el));
+                
+                let hHeight = 0;
+                headerEls.forEach((el, i) => {
+                    const linesCount = String(el.text || '').split('\n').length;
+                    hHeight += (el.fontSize * linesCount * 1.2) + (i > 0 ? 10 : 0);
+                });
+                sections.push({ type: 'header', elements: headerEls, height: hHeight, x: canvas.width/2, textAlign: 'center' });
+                
+                let bHeight = 0;
+                bodyEls.forEach((el, i) => {
+                    let gap = 0;
+                    if (i > 0) {
+                        const prevEl = bodyEls[i-1];
+                        if (prevEl.id === 'name' && el.id === 'pos') gap = 12; // 12px gap
+                        else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = 16; // 16px gap
+                        else gap = lineGap;
+                    }
+                    const linesCount = String(el.text || '').split('\n').length;
+                    bHeight += (el.fontSize * linesCount * 1.2) + gap;
+                });
+                
+                let socialHeight = 0;
+                let socialLayoutData = [];
+                if (socialEls.length > 0) {
+                    const baseStartX = canvas.width/2;
+                    const horizontalGap = 20;
+                    let rows = 1;
+                    let rowWidths = [0];
+                    let rowEls = [[]];
+                    
+                    socialEls.forEach(el => {
+                        ctx.font = `${el.fontSize}px Inter, sans-serif`;
+                        const totalWidth = el.fontSize * 1.4 + ctx.measureText(el.text).width;
+                        if (rowWidths[rows-1] + totalWidth > canvas.width - 100 && rowWidths[rows-1] > 0) {
+                            rows++;
+                            rowWidths.push(0);
+                            rowEls.push([]);
+                        }
+                        rowWidths[rows-1] += totalWidth + (rowEls[rows-1].length > 0 ? horizontalGap : 0);
+                        rowEls[rows-1].push({ id: el.id, width: totalWidth });
+                    });
+                    
+                    rowEls.forEach((row, rIdx) => {
+                        let startX = (canvas.width - rowWidths[rIdx]) / 2;
+                        let currentX = startX;
+                        row.forEach(item => {
+                            socialLayoutData.push({ id: item.id, x: currentX, yOffset: rIdx * (socialEls[0].fontSize * 1.4) });
+                            currentX += item.width + horizontalGap;
+                        });
+                    });
+                    socialHeight = rows * (socialEls[0].fontSize * 1.4);
+                }
+                
+                sections.push({ type: 'body', elements: bodyEls, height: bHeight, x: canvas.width/2, textAlign: 'center' });
+                if (socialEls.length > 0) sections.push({ type: 'social', elements: socialEls, height: socialHeight, layout: socialLayoutData, x: canvas.width/2, textAlign: 'center' });
+
+            } else {
+                // Default Single Column Distribution
+                const contentElements = [];
+                if (biz && biz.text) contentElements.push(biz);
+                if (slogan && slogan.text) contentElements.push(slogan);
+                if (name && name.text) contentElements.push(name);
+                if (pos && pos.text) contentElements.push(pos);
+                contactEls.forEach(el => contentElements.push(el));
+
+                let mainContentHeight = 0;
+                contentElements.forEach((el, i) => {
+                    let gap = 0;
+                    if (i > 0) {
+                        const prevEl = contentElements[i-1];
+                        if (prevEl.id === 'biz' && el.id === 'slogan') gap = bizSloganGap;
+                        else if (prevEl.id === 'slogan' && el.id === 'name') gap = sloganNameGap;
+                        else if (prevEl.id === 'name' && el.id === 'pos') gap = namePosGap;
+                        else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = posContactGap;
+                        else gap = lineGap;
+                    }
+                    const linesCount = String(el.text || '').split('\n').length;
+                    mainContentHeight += (el.fontSize * linesCount * 1.2) + gap;
+                });
+
+                let socialHeight = 0;
+                let socialLayoutData = [];
+                if (socialEls.length > 0) {
+                    const baseStartX = 360;
+                    const maxWidth = canvas.width - 60;
+                    const horizontalGap = 20;
+                    let tempX = baseStartX;
+                    let tempYOffset = 0;
+                    let rows = 1;
+                    socialEls.forEach(el => {
+                        ctx.font = `${el.fontSize}px Inter, sans-serif`;
+                        const textWidth = ctx.measureText(el.text).width;
+                        const iconSize = el.fontSize * 1.4;
+                        const totalWidth = iconSize + 10 + textWidth;
+                        
+                        if (tempX + totalWidth > maxWidth && tempX > baseStartX) {
+                            tempX = baseStartX;
+                            tempYOffset += el.fontSize * 1.8;
+                            rows++;
+                        }
+                        socialLayoutData.push({ id: el.id, x: tempX, yOffset: tempYOffset });
+                        tempX += totalWidth + horizontalGap;
+                    });
+                    socialHeight = rows * (socialEls[0].fontSize * 1.8);
+                }
+
+                if (mainContentHeight > 0) sections.push({ type: 'main', elements: contentElements, height: mainContentHeight, x: 360 });
+                if (socialEls.length > 0) sections.push({ type: 'social', elements: socialEls, height: socialHeight, layout: socialLayoutData, x: 360 });
+            }
+
+            const finalPositions = {};
+
+            if (s.template === 1) {
+                // Corporate Layout: Header centered in left bar, Body/Social centered in right area
+                const headerSec = sections.find(s => s.type === 'header');
+                const bodySec = sections.find(s => s.type === 'body');
+                const socialSec = sections.find(s => s.type === 'social');
+                
+                if (headerSec) {
+                    let y = (canvas.height - headerSec.height) / 2;
+                    headerSec.elements.forEach((el, i) => {
+                        const linesCount = String(el.text || '').split('\n').length;
+                        y += (el.fontSize * 0.8) + (i > 0 ? 10 : 0); // Adjust for baseline
+                        finalPositions[el.id] = { x: 60, y: y };
+                        y += (el.fontSize * (linesCount - 1) * 1.2) + (el.fontSize * 0.2); // Move to next element start
+                    });
+                }
+                
+                let rightContentHeight = (bodySec ? bodySec.height : 0) + (socialSec ? socialSec.height + 30 : 0);
+                let startY = (canvas.height - rightContentHeight) / 2;
+                
+                if (bodySec) {
+                    let y = startY;
+                    bodySec.elements.forEach((el, i) => {
+                        let gap = 0;
+                        if (i > 0) {
+                            const prevEl = bodySec.elements[i-1];
+                            if (prevEl.id === 'name' && el.id === 'pos') gap = 12; // 12px gap (name -> pos)
+                            else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = 12; // 12px gap (pos -> contact)
+                            else gap = lineGap;
+                        }
+                        const linesCount = String(el.text || '').split('\n').length;
+                        y += (el.fontSize * 0.8) + gap;
+                        finalPositions[el.id] = { x: 400, y: y };
+                        y += (el.fontSize * (linesCount - 1) * 1.2) + (el.fontSize * 0.2);
+                    });
+                    startY += bodySec.height + 30;
+                }
+                
+                if (socialSec) {
+                    socialSec.layout.forEach(item => {
+                        finalPositions[item.id] = { x: item.x, y: startY + item.yOffset + socialEls[0].fontSize };
+                    });
+                }
+
+            } else if (s.template === 2) {
+                // Modern Layout: Header at top, Body/Social at bottom
+                const headerSec = sections.find(s => s.type === 'header');
+                const bodySec = sections.find(s => s.type === 'body');
+                const socialSec = sections.find(s => s.type === 'social');
+                
+                if (headerSec) {
+                    let y = (canvas.height * 0.35 - headerSec.height) / 2;
+                    headerSec.elements.forEach((el, i) => {
+                        const linesCount = String(el.text || '').split('\n').length;
+                        y += (el.fontSize * 0.8) + (i > 0 ? 10 : 0); // 10px gap (biz -> slogan)
+                        finalPositions[el.id] = { x: canvas.width/2, y: y };
+                        y += (el.fontSize * (linesCount - 1) * 1.2) + (el.fontSize * 0.2);
+                    });
+                }
+                
+                let bottomContentHeight = (bodySec ? bodySec.height : 0) + (socialSec ? socialSec.height + 20 : 0);
+                let startY = canvas.height * 0.35 + (canvas.height * 0.65 - bottomContentHeight) / 2;
+                
+                if (bodySec) {
+                    let y = startY;
+                    bodySec.elements.forEach((el, i) => {
+                        let gap = 0;
+                        if (i > 0) {
+                            const prevEl = bodySec.elements[i-1];
+                            if (prevEl.id === 'name' && el.id === 'pos') gap = 12; // 12px gap (name -> pos)
+                            else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = 12; // 12px gap (pos -> contact)
+                            else gap = lineGap;
+                        }
+                        const linesCount = String(el.text || '').split('\n').length;
+                        y += (el.fontSize * 0.8) + gap;
+                        finalPositions[el.id] = { x: canvas.width/2, y: y };
+                        y += (el.fontSize * (linesCount - 1) * 1.2) + (el.fontSize * 0.2);
+                    });
+                    startY += bodySec.height + 20;
+                }
+                
+                if (socialSec) {
+                    socialSec.layout.forEach(item => {
+                        finalPositions[item.id] = { x: item.x, y: startY + item.yOffset + socialEls[0].fontSize };
+                    });
+                }
+            } else {
+                // Default Centered Distribution
+                const totalContentHeight = sections.reduce((sum, sec) => sum + sec.height, 0);
+                const availableHeight = canvas.height - 80;
+                const gapBetweenSections = sections.length > 1 ? Math.max(20, (availableHeight - totalContentHeight) / (sections.length + 1)) : 40;
+
+                let currentY = (canvas.height - (totalContentHeight + (sections.length - 1) * gapBetweenSections)) / 2;
+
+                sections.forEach((sec) => {
+                    let sectionY = currentY;
+                    if (sec.type === 'social') {
+                        sec.layout.forEach(item => {
+                            finalPositions[item.id] = { x: item.x, y: sectionY + item.yOffset + socialEls[0].fontSize };
+                        });
+                    } else {
+                        let elY = sectionY;
+                        sec.elements.forEach((el, i) => {
+                            let gap = 0;
+                            if (i > 0) {
+                                const prevEl = sec.elements[i-1];
+                                if (prevEl.id === 'biz' && el.id === 'slogan') gap = bizSloganGap;
+                                else if (prevEl.id === 'slogan' && el.id === 'name') gap = sloganNameGap;
+                                else if (prevEl.id === 'name' && el.id === 'pos') gap = namePosGap;
+                                else if (prevEl.id === 'pos' && contactIds.includes(el.id)) gap = posContactGap;
+                                else gap = lineGap;
+                            }
+                            const linesCount = String(el.text || '').split('\n').length;
+                            elY += (el.fontSize * 0.8) + gap;
+                            finalPositions[el.id] = { x: sec.x, y: elY };
+                            elY += (el.fontSize * (linesCount - 1) * 1.2) + (el.fontSize * 0.2);
+                        });
+                    }
+                    currentY += sec.height + gapBetweenSections;
+                });
+            }
+
+            // Draw elements using calculated positions unless being dragged or manually moved
+            s.elements.forEach(el => {
+                if (el.hidden) return;
+                const pos = finalPositions[el.id];
+                if (pos && !el.isManual && !(state.selectedId === el.id && state.isDragging)) {
+                    el.x = pos.x; el.y = pos.y;
+                    drawElement(el);
+                } else {
+                    drawElement(el);
+                }
+            });
+        } else if (state.tab === 'whatsapp') {
+            ctx.fillStyle = s.bg || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (s.template === 2) { // Split Vertical Promo
+                ctx.fillStyle = '#f1f5f9';
+                ctx.fillRect(0, 0, canvas.width * 0.5, canvas.height);
+            } else if (s.template === 4) { // Bottom Panel Offer
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+            }
+
+            // Placeholder Guide
+            const hasContent = s.elements.some(el => (el.type === 'text' && el.text) || (el.type === 'image' && el.img));
+            if (!hasContent && !state.isExporting) {
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                ctx.textAlign = 'center';
+                
+                // Image Placeholder
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.setLineDash([10, 10]);
+                ctx.strokeRect(canvas.width * 0.2, canvas.height * 0.1, canvas.width * 0.6, canvas.height * 0.4);
+                ctx.font = 'italic 32px Inter, sans-serif';
+                ctx.fillText('Your Product Image Here', canvas.width / 2, canvas.height * 0.3);
+                
+                // Text Placeholders
+                ctx.font = 'bold 48px Inter, sans-serif';
+                ctx.fillText('Product Name Here', canvas.width / 2, canvas.height * 0.6);
+                
+                ctx.font = 'bold 64px Inter, sans-serif';
+                ctx.fillText('Price Here', canvas.width / 2, canvas.height * 0.72);
+                
+                ctx.font = '24px Inter, sans-serif';
+                ctx.fillText('Description Here', canvas.width / 2, canvas.height * 0.82);
+                
+                // Button Placeholder
+                ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                ctx.fillRect(canvas.width * 0.3, canvas.height * 0.88, canvas.width * 0.4, 60);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.font = 'bold 24px Inter, sans-serif';
+                ctx.fillText('Buy Now / Order Now', canvas.width / 2, canvas.height * 0.93);
+                
+                ctx.restore();
+            }
+        } else if (state.tab === 'stamp') {
+            // Preview background - fill the entire canvas physical area
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+        }
+
+        if (state.tab === 'stamp') {
+            drawStampPreview();
+            // drawStampPreview handles its own drawing logic
+        } else if (state.tab !== 'card') {
+            s.elements.forEach(el => drawElement(el));
+        }
+
+        if (state.selectedId) drawSelection(getSelectedElement());
+        ctx.restore();
+
+        // Update Sidebar Controls
+        const selPanel = document.getElementById('selected-controls');
+        const el = getSelectedElement();
+        if (el) {
+            selPanel.classList.remove('hidden');
+            document.getElementById('text-only-controls').classList.toggle('hidden', el.type !== 'text');
+            document.getElementById('image-only-controls').classList.toggle('hidden', el.type !== 'image' && el.type !== 'badge');
+            if (el.type === 'text') document.getElementById('selected-text-color').value = el.color || '#000000';
+            if (el.type === 'image' || el.type === 'badge') document.getElementById('selected-opacity').value = (el.opacity || 1) * 100;
+        } else {
+            selPanel.classList.add('hidden');
+        }
+    }
+
+    function drawElement(el) {
+        if (el.hidden) return;
+        
+        // Conditional Rendering Rules
+        if (state.tab === 'whatsapp') {
+            if (el.id === 'logo' && !el.img) return;
+            if (el.id.startsWith('productImg') && !el.img) return;
+            // Removed redundant badge visibility check to rely on el.hidden
+        }
+
+        if (el.type === 'text' && !el.text && !el.isSocial && el.id !== 'centerText') return;
+        if (el.type === 'image' && !el.img && el.id !== 'logo' && el.id !== 'productImg' && el.id !== 'userImg' && el.id !== 'signatureImg') return;
+        if (el.type === 'image' && !el.img && state.tab === 'card' && (el.id === 'logo' || el.id === 'userImg')) return;
+
+        ctx.save();
+        if (el.opacity !== undefined) ctx.globalAlpha = el.opacity;
+
+        let ex = el.x, ey = el.y, ew = el.width || 0, eh = el.height || 0;
+        if (el.type === 'text') {
+            let textToDraw = el.text;
+            // Currency is already handled in updateField and refreshWhatsappPrices
+            ctx.font = `${el.fontWeight || 'normal'} ${el.fontSize}px Inter, sans-serif`;
+            ew = ctx.measureText(textToDraw).width;
+            eh = el.fontSize;
+            if (el.textAlign === 'center') ex -= ew / 2;
+            ey -= eh;
+        }
+
+        if (el.rotation) {
+            ctx.translate(ex + ew/2, ey + eh/2);
+            ctx.rotate(el.rotation);
+            ctx.translate(-(ex + ew/2), -(ey + eh/2));
+        }
+
+        if (el.type === 'text') {
+            let textToDraw = el.text;
+            // Currency is already handled in updateField and refreshWhatsappPrices
+            if (el.isSocial) {
+                if (!el.text) { ctx.restore(); return; }
+                const iconSize = el.fontSize;
+                ctx.fillStyle = el.color || '#000000';
+                ctx.font = `${el.fontWeight || '700'} ${el.fontSize}px Inter, sans-serif`;
+                
+                const gap = iconSize * 0.4;
+                const textWidth = ctx.measureText(el.text).width;
+                const totalWidth = iconSize + gap + textWidth;
+                let startX = el.x;
+                if (el.textAlign === 'center') startX -= totalWidth / 2;
+                
+                // Draw Icon
+                ctx.save();
+                ctx.translate(startX, el.y - iconSize * 0.85);
+                const scale = iconSize / 24;
+                ctx.scale(scale, scale);
+                ctx.strokeStyle = el.color || '#000000';
+                ctx.lineWidth = 2.5;
+                if (el.socialType === 'instagram') {
+                    ctx.stroke(new Path2D("M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"));
+                    ctx.stroke(new Path2D("M17.5 6.5h.01"));
+                    ctx.stroke(new Path2D("M2 17.5v-11A4.5 4.5 0 0 1 6.5 2h11A4.5 4.5 0 0 1 22 6.5v11a4.5 4.5 0 0 1-4.5 4.5h-11A4.5 4.5 0 0 1 2 17.5z"));
+                } else if (el.socialType === 'facebook') {
+                    ctx.stroke(new Path2D("M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"));
+                } else if (el.socialType === 'tiktok') {
+                    ctx.stroke(new Path2D("M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"));
+                } else if (el.socialType === 'linkedin') {
+                    ctx.stroke(new Path2D("M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"));
+                    ctx.stroke(new Path2D("M2 9h4v12H2z"));
+                    ctx.stroke(new Path2D("M4 2a2 2 0 1 1-2 2 2 2 0 0 1 2-2z"));
+                } else if (el.socialType === 'youtube') {
+                    ctx.stroke(new Path2D("M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"));
+                    ctx.stroke(new Path2D("M9.75 15.02l5.75-3.27-5.75-3.27v6.54z"));
+                } else if (el.socialType === 'phone') {
+                    ctx.stroke(new Path2D("M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"));
+                } else if (el.socialType === 'email') {
+                    ctx.stroke(new Path2D("M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"));
+                    ctx.stroke(new Path2D("M22 6l-10 7L2 6"));
+                } else if (el.socialType === 'address') {
+                    ctx.stroke(new Path2D("M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"));
+                    ctx.stroke(new Path2D("M12 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"));
+                }
+                ctx.restore();
+                
+                ctx.textAlign = 'left';
+                const textStartX = startX + iconSize + gap;
+                const maxWidth = Math.max(100, canvas.width - textStartX - 40);
+                
+                if (textWidth > maxWidth) {
+                    wrapText(ctx, el.text, textStartX, el.y, maxWidth, el.fontSize * 1.2);
+                } else {
+                    ctx.fillText(el.text, textStartX, el.y);
+                }
+            } else {
+                ctx.fillStyle = (el.isFormerPrice) ? '#ef4444' : (el.color || '#000000');
+                let fSize = el.fontSize;
+                if (state.tab === 'whatsapp' && state.whatsapp.mode === 'single' && el.id === 'price' && document.getElementById('w-badge-type').value === 'Discount') {
+                    fSize = el.fontSize * 1.4;
+                }
+                ctx.font = `700 ${fSize}px Inter, sans-serif`;
+                ctx.textAlign = el.textAlign || 'left';
+                if (el.maxWidth) {
+                    wrapText(ctx, el.text, el.x, el.y, el.maxWidth, fSize * 1.2);
+                } else {
+                    const lines = String(el.text || '').split('\n');
+                    lines.forEach((line, i) => {
+                        ctx.fillText(line, el.x, el.y + (i * fSize * 1.2));
+                    });
+                }
+                
+                if (el.isFormerPrice) {
+                    const width = ctx.measureText(el.text).width;
+                    ctx.strokeStyle = '#ef4444'; // Red for original price
+                    ctx.lineWidth = 4; // Thicker for bold line-through
+                    ctx.beginPath();
+                    ctx.moveTo(ex, ey + eh/2);
+                    ctx.lineTo(ex + width, ey + eh/2);
+                    ctx.stroke();
+                }
+            }
+        } else if (el.type === 'image') {
+            if (el.img) {
+                ctx.drawImage(el.img, el.x, el.y, el.width, el.height);
+            }
+        } else if (el.type === 'badge') {
+            ctx.save();
+            ctx.translate(el.x, el.y);
+            ctx.rotate(el.rotation || Math.PI / 12);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.arc(0, 0, el.width/2, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = 'white'; ctx.lineWidth = el.width/40; ctx.stroke();
+            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            const badgeText = el.text.toUpperCase();
+            const fontSize = el.width / 6;
+            ctx.font = `bold ${fontSize}px Inter`;
+            
+            // Text Wrapping for Badge
+            const words = badgeText.split(' ');
+            if (words.length > 1 && ctx.measureText(badgeText).width > el.width * 0.8) {
+                const mid = Math.ceil(words.length / 2);
+                const line1 = words.slice(0, mid).join(' ');
+                const line2 = words.slice(mid).join(' ');
+                ctx.fillText(line1, 0, -fontSize * 0.6);
+                ctx.fillText(line2, 0, fontSize * 0.6);
+            } else {
+                ctx.fillText(badgeText, 0, 0);
+            }
+            ctx.restore();
+        }
+        ctx.restore();
+    }
+
+    function drawStampPreview(){
+        try {
+            const wrapper = document.getElementById("stampPreviewWrapper");
+            let canvas = document.getElementById("stampCanvas");
+            
+            if (!canvas) {
+                canvas = document.createElement("canvas");
+                canvas.id = "stampCanvas";
+                wrapper.appendChild(canvas);
+            }
+
+            const ctx = canvas.getContext("2d");
+            
+            // STEP 2 - FORCE VISIBLE CANVAS SIZE
+            let safeWidth = wrapper.offsetWidth;
+            if (!safeWidth || safeWidth < 250) safeWidth = 420;
+            canvas.width = safeWidth;
+            canvas.height = 360;
+
+            // STEP 1 - RESTORE SAFE CANVAS ENGINE
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Read Inputs
+            const topText = document.getElementById("stampTopText").value;
+            const centerText = document.getElementById("stampCenterText").value;
+            const bottomText = document.getElementById("stampBottomText").value;
+            const stampColor = document.getElementById("st-color").value;
+            const shape = document.getElementById("st-shape").value;
+            const showLogo = document.getElementById("st-logo-check").checked;
+            const showSignature = document.getElementById("st-sig-check").checked;
+            const showPosition = document.getElementById("st-pos-check").checked;
+            const showDate = document.getElementById("st-date-check").checked;
+            const randomRotate = document.getElementById("st-rotate-check").checked;
+            const rotation = parseFloat(document.getElementById("st-rotation").value) || 0;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation * Math.PI / 180);
+
+            // Draw Ink Elements (Border and Text)
+            ctx.strokeStyle = stampColor;
+            ctx.fillStyle = stampColor;
+
+            // STEP 4 - RESTORE COLOR PICKER (Border)
+            if (shape === 'circular') {
+                ctx.beginPath();
+                ctx.lineWidth = 6;
+                ctx.arc(0, 0, 120, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.arc(0, 0, 114, 0, Math.PI * 2);
+                ctx.stroke();
+            } else {
+                ctx.lineWidth = 6;
+                ctx.strokeRect(-160, -90, 320, 180);
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-154, -84, 308, 168);
+            }
+
+            // STEP 2 - RESTORE CURVED COMPANY NAME
+            if (shape === 'circular' && topText) {
+                drawCurvedText(ctx, topText.toUpperCase(), 100, Math.PI * 1.5, "bold 18px Inter");
+            } else if (topText) {
+                ctx.font = "bold 18px Inter";
+                ctx.textAlign = "center";
+                ctx.fillText(topText.toUpperCase(), 0, -65);
+            }
+
+            // Center Text
+            ctx.font = "bold 32px Inter";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const centerLines = (centerText || "APPROVED").split('\n');
+            const lineHeight = 36;
+            const startY = -((centerLines.length - 1) * lineHeight) / 2;
+            centerLines.forEach((line, i) => {
+                ctx.fillText(line.toUpperCase(), 0, startY + (i * lineHeight));
+            });
+
+            // Date
+            if (showDate) {
+                ctx.font = "bold 14px Inter";
+                ctx.fillText(getFormattedDate(), 0, 45);
+            }
+
+            // Signature
+            if (showSignature) {
+                const sigEl = state.stamp.elements.find(e => e.id === 'signatureImg');
+                if (sigEl && sigEl.img) {
+                    ctx.drawImage(sigEl.img, -50, 60, 100, 40);
+                }
+            }
+
+            // Position (Bottom Text)
+            if (showPosition && bottomText) {
+                if (shape === 'circular') {
+                    drawCurvedText(ctx, bottomText.toUpperCase(), 100, Math.PI * 0.5, "bold 14px Inter", true);
+                } else {
+                    ctx.font = "bold 14px Inter";
+                    ctx.fillText(bottomText.toUpperCase(), 0, 75);
+                }
+            }
+
+            // STEP 5 - RESTORE REALISTIC STAMP EFFECT
+            if (randomRotate) {
+                applyRubberEffect(ctx);
+            }
+
+            // STEP 3 - RESTORE LOGO UPLOAD RENDERING
+            if (showLogo) {
+                const logoEl = state.stamp.elements.find(e => e.id === 'logo');
+                if (logoEl && logoEl.img) {
+                    ctx.save();
+                    ctx.globalAlpha = 1; // Ensure logo is not faint
+                    ctx.globalCompositeOperation = 'source-over'; // Logo must NOT inherit ink noise
+                    // Position logo inside the border, above center text
+                    ctx.drawImage(logoEl.img, -30, -105, 60, 60);
+                    ctx.restore();
+                }
+            }
+
+            ctx.restore();
+
+        } catch(err) {
+            console.error("STAMP DRAW ERROR:", err);
+        }
+    }
+
+    function renderStampPreview() {
+        drawStampPreview();
+    }
+
+    function drawArcText(ctx, text, radius, startAngle, color, font, reverse = false) {
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const chars = text.split("");
+        const angleStep = 0.16; 
+        const totalAngle = Math.min(Math.PI * 1.5, chars.length * angleStep);
+        ctx.save();
+        ctx.rotate(startAngle - totalAngle / 2 + angleStep / 2);
+        for (let i = 0; i < chars.length; i++) {
+            ctx.save();
+            ctx.translate(0, reverse ? radius : -radius);
+            if (reverse) ctx.rotate(Math.PI);
+            ctx.fillText(chars[i], 0, 0);
+            ctx.restore();
+            ctx.rotate(angleStep);
+        }
+        ctx.restore();
+    }
+
+    function renderStamp(isExport = false) {
+        try {
+            const s = state.stamp;
+            ctx.save();
+            
+            if (isExport) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(s.rotation * Math.PI / 180);
+            
+            if (s.randomRotate) ctx.rotate((Math.random() - 0.5) * 0.04);
+
+            // Clipping Path
+            ctx.save();
+            ctx.beginPath();
+            if (s.shape === 'circular') {
+                ctx.arc(0, 0, 650, 0, Math.PI * 2);
+            } else {
+                ctx.rect(-850, -450, 1700, 900);
+            }
+            ctx.clip();
+
+            // Draw Border
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = 20;
+            if (s.shape === 'circular') {
+                ctx.beginPath(); ctx.arc(0, 0, 650, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(0, 0, 620, 0, Math.PI * 2); ctx.lineWidth = 5; ctx.stroke();
+            } else {
+                ctx.strokeRect(-850, -450, 1700, 900);
+                ctx.lineWidth = 5; ctx.strokeRect(-820, -420, 1640, 840);
+            }
+
+            // Draw Ink Elements (Everything except logo)
+            s.elements.forEach(el => {
+                if (el.id === 'logo') return; // Skip logo for now
+                if (el.hidden) return;
+                if (el.id === 'date' && !s.showDate) return;
+                if (el.id === 'signatureImg' && !s.showSignature) return;
+                if (el.id === 'position' && !s.showPosition) return;
+                if (el.type === 'text' && !el.text && el.id !== 'centerText') return;
+                if (el.type === 'image' && !el.img) return;
+                
+                ctx.save();
+                ctx.fillStyle = s.color;
+                if (el.isCurved && s.shape === 'circular') {
+                    const radius = 530;
+                    const angle = (el.arc === 'top' ? Math.PI * 1.5 : Math.PI * 0.5);
+                    drawCurvedText(ctx, String(el.text || '').toUpperCase(), radius, angle, `${el.fontWeight || 'normal'} ${el.fontSize}px Inter`, el.arc === 'bottom');
+                } else if (el.type === 'text') {
+                    ctx.font = `${el.fontWeight || 'normal'} ${el.fontSize}px Inter`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    let ty = el.y;
+                    const centerLines = String(s.centerText || '').split('\n').length;
+                    const centerEl = s.elements.find(e => e.id === 'centerText');
+                    const centerFontSize = centerEl ? centerEl.fontSize : 220;
+
+                    if (s.shape === 'circular') {
+                        let currentY = -420;
+                        if (el.id === 'company') ty = currentY;
+                        currentY = 0;
+                        if (el.id === 'centerText') ty = currentY;
+                        let offset = (centerLines * centerFontSize * 1.2) / 2 + 50;
+                        if (s.showDate) {
+                            if (el.id === 'date') ty = currentY + offset;
+                            offset += 120;
+                        }
+                        if (s.showSignature) {
+                            if (el.id === 'signatureImg') ty = currentY + offset;
+                            offset += 150;
+                        }
+                        if (s.showPosition) {
+                            if (el.id === 'position') ty = currentY + offset;
+                        }
+                    } else {
+                        let currentY = -350;
+                        if (el.id === 'company') ty = currentY;
+                        currentY = 0;
+                        if (el.id === 'centerText') ty = currentY;
+                        let offset = (centerLines * centerFontSize * 1.2) / 2 + 40;
+                        if (s.showDate) {
+                            if (el.id === 'date') ty = currentY + offset;
+                            offset += 100;
+                        }
+                        if (s.showSignature) {
+                            if (el.id === 'signatureImg') ty = currentY + offset;
+                            offset += 130;
+                        }
+                        if (s.showPosition) {
+                            if (el.id === 'position') ty = currentY + offset;
+                        }
+                    }
+                    
+                    const maxWidth = (s.shape === 'circular') ? 1000 : 1500;
+                    let currentFontSizeFinal = el.fontSize;
+                    const lines = String(el.text || '').split('\n');
+                    
+                    while (currentFontSizeFinal > 10) {
+                        ctx.font = `${el.fontWeight || 'normal'} ${currentFontSizeFinal}px Inter`;
+                        let tooWide = false;
+                        lines.forEach(line => {
+                            if (ctx.measureText(String(line || '').toUpperCase()).width > maxWidth) tooWide = true;
+                        });
+                        if (!tooWide) break;
+                        currentFontSizeFinal -= 2;
+                    }
+                    
+                    if (s.shape === 'circular' && el.id === 'centerText') {
+                        const totalHeight = (lines.length - 1) * currentFontSizeFinal * 1.2;
+                        let startTy = ty - totalHeight / 2;
+                        lines.forEach((line, i) => {
+                            ctx.fillText(String(line || '').toUpperCase(), el.x, startTy + (i * currentFontSizeFinal * 1.2));
+                        });
+                    } else {
+                        lines.forEach((line, i) => {
+                            ctx.fillText(String(line || '').toUpperCase(), el.x, ty + (i * currentFontSizeFinal * 1.2));
+                        });
+                    }
+                } else if (el.type === 'image' && el.img) {
+                    let ty = el.y;
+                    if (el.id === 'signatureImg') {
+                        const centerLines = String(s.centerText || '').split('\n').length;
+                        const centerEl = s.elements.find(e => e.id === 'centerText');
+                        const centerFontSize = centerEl ? centerEl.fontSize : 220;
+                        let currentY = 0;
+                        if (s.shape === 'circular') {
+                            let offset = (centerLines * centerFontSize * 1.2) / 2 + 50;
+                            if (s.showDate) offset += 120;
+                            ty = currentY + offset;
+                        } else {
+                            let offset = (centerLines * centerFontSize * 1.2) / 2 + 40;
+                            if (s.showDate) offset += 100;
+                            ty = currentY + offset;
+                        }
+                    }
+                    
+                    if (isExport && el.id === 'signatureImg') {
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = el.img.width;
+                        tempCanvas.height = el.img.height;
+                        tempCtx.drawImage(el.img, 0, 0);
+                        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        const data = imageData.data;
+                        const targetR = data[0], targetG = data[1], targetB = data[2];
+                        const threshold = 40;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i], g = data[i+1], b = data[i+2];
+                            const dist = Math.sqrt(Math.pow(r - targetR, 2) + Math.pow(g - targetG, 2) + Math.pow(b - targetB, 2));
+                            if (dist < threshold) data[i+3] = 0;
+                        }
+                        tempCtx.putImageData(imageData, 0, 0);
+                        ctx.drawImage(tempCanvas, el.x, ty, el.width, el.height);
+                    } else {
+                        ctx.drawImage(el.img, el.x, ty, el.width, el.height);
+                    }
+                }
+                ctx.restore();
+            });
+            ctx.restore(); // Restore clipping
+
+            // Apply Rubber Effect to Ink (Borders and Text)
+            if (isExport || s.randomRotate) {
+                applyRubberEffect(ctx);
+            }
+
+            // Draw Logo (Solid and Clear)
+            if (s.showLogo) {
+                const logoEl = s.elements.find(e => e.id === 'logo');
+                if (logoEl && logoEl.img) {
+                    ctx.save();
+                    ctx.globalAlpha = 1;
+                    ctx.globalCompositeOperation = 'source-over';
+                    let ty = logoEl.y;
+                    if (isExport) {
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = logoEl.img.width;
+                        tempCanvas.height = logoEl.img.height;
+                        tempCtx.drawImage(logoEl.img, 0, 0);
+                        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        const data = imageData.data;
+                        const targetR = data[0], targetG = data[1], targetB = data[2];
+                        const threshold = 40;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i], g = data[i+1], b = data[i+2];
+                            const dist = Math.sqrt(Math.pow(r - targetR, 2) + Math.pow(g - targetG, 2) + Math.pow(b - targetB, 2));
+                            if (dist < threshold) data[i+3] = 0;
+                        }
+                        tempCtx.putImageData(imageData, 0, 0);
+                        ctx.drawImage(tempCanvas, logoEl.x, ty, logoEl.width, logoEl.height);
+                    } else {
+                        ctx.drawImage(logoEl.img, logoEl.x, ty, logoEl.width, logoEl.height);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            ctx.restore();
+        } catch (err) {
+            console.error("Stamp Render Error:", err);
+        }
+    }
+
+    function applyRubberEffect(ctx) {
+        const canvas = ctx.canvas;
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // 1. Noise and Opacity Variation (Ink Gaps and Pressure)
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 0) {
+                const noise = Math.random();
+                // Randomly remove pixels for noise (ink gaps)
+                if (noise > 0.92) {
+                    data[i + 3] = 0;
+                } else {
+                    // Opacity variation for pressure effect
+                    const variation = 0.7 + Math.random() * 0.3;
+                    data[i + 3] *= variation;
+                }
+            }
+        }
+        ctx.putImageData(imageData, 0, 0);
+
+        // 2. Small Rough Edges (Ink Bleeding/Jitter)
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 0.15;
+        const offsets = [[0.6, 0.6], [-0.6, -0.6], [0.6, -0.6], [-0.6, 0.6]];
+        offsets.forEach(offset => {
+            ctx.drawImage(canvas, offset[0], offset[1]);
+        });
+        ctx.restore();
+        
+        // 3. Texture Overlay (Simulated Scratches/Wear)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1.2;
+        ctx.globalCompositeOperation = 'destination-out';
+        for(let i=0; i<30; i++) {
+            ctx.beginPath();
+            const x = (Math.random() - 0.5) * canvas.width;
+            const y = (Math.random() - 0.5) * canvas.height;
+            const len = 10 + Math.random() * 40;
+            const ang = Math.random() * Math.PI * 2;
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+            ctx.stroke();
+        }
+        
+        // 4. Pressure Gradient (Subtle fade across the stamp)
+        ctx.globalCompositeOperation = 'destination-out';
+        const grad = ctx.createLinearGradient(-200, -200, 200, 200);
+        grad.addColorStop(0, 'rgba(255,255,255,0)');
+        grad.addColorStop(1, 'rgba(255,255,255,0.15)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(-canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+        
+        ctx.restore();
+    }
+
+    function drawCurvedText(ctx, txt, rad, start, font, rev = false) {
+        if (!txt || txt.trim() === '') return;
+        ctx.font = font;
+        const cleanText = String(txt || '').replace(/\n/g, ' ');
+        const chars = cleanText.split('');
+        if (chars.length === 0) return;
+        const totalAngle = Math.min(Math.PI * 0.85, chars.length * 0.16);
+        const step = totalAngle / chars.length;
+        ctx.save();
+        ctx.rotate(start - (step * chars.length) / 2 + step / 2);
+        for (let i = 0; i < chars.length; i++) {
+            ctx.save();
+            ctx.translate(0, rev ? rad : -rad);
+            if (rev) ctx.rotate(Math.PI);
+            ctx.fillText(chars[i], 0, 0);
+            ctx.restore();
+            ctx.rotate(step);
+        }
+        ctx.restore();
+    }
+
+    function drawSelection(el, targetCtx = ctx) {
+        if (!el || el.isLocked) return;
+        targetCtx.save();
+        const bounds = getElementBounds(el, targetCtx);
+        const { x: ex, y: ey, width: ew, height: eh } = bounds;
+
+        if (el.rotation) {
+            targetCtx.translate(ex + ew/2, ey + eh/2);
+            targetCtx.rotate(el.rotation);
+            targetCtx.translate(-(ex + ew/2), -(ey + eh/2));
+        }
+
+        targetCtx.strokeStyle = '#2563eb';
+        targetCtx.lineWidth = 2 / state.zoom;
+        targetCtx.setLineDash([5 / state.zoom, 5 / state.zoom]);
+        targetCtx.strokeRect(ex - 4 / state.zoom, ey - 4 / state.zoom, ew + 8 / state.zoom, eh + 8 / state.zoom);
+
+        // Resize handles
+        targetCtx.setLineDash([]);
+        targetCtx.fillStyle = 'white';
+        const currentHandleSize = HANDLE_SIZE / state.zoom;
+        const corners = [
+            { x: ex, y: ey }, // Top-left
+            { x: ex + ew, y: ey }, // Top-right
+            { x: ex, y: ey + eh }, // Bottom-left
+            { x: ex + ew, y: ey + eh } // Bottom-right
+        ];
+        corners.forEach(c => {
+            targetCtx.fillRect(c.x - currentHandleSize/2, c.y - currentHandleSize/2, currentHandleSize, currentHandleSize);
+            targetCtx.strokeRect(c.x - currentHandleSize/2, c.y - currentHandleSize/2, currentHandleSize, currentHandleSize);
+        });
+        
+        // Rotation handle
+        targetCtx.beginPath();
+        targetCtx.moveTo(ex + ew/2, ey - 4 / state.zoom);
+        targetCtx.lineTo(ex + ew/2, ey - 30 / state.zoom);
+        targetCtx.stroke();
+        targetCtx.beginPath();
+        targetCtx.arc(ex + ew/2, ey - 30 / state.zoom, currentHandleSize/2, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.stroke();
+
+        targetCtx.restore();
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        const paragraphs = String(text || '').split('\n');
+        paragraphs.forEach(paragraph => {
+            const words = paragraph.split(' ');
+            let line = '';
+            for (let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                let metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
+            y += lineHeight;
+        });
+    }
+
+    function getFormattedDate() {
+        const d = new Date();
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    // EXPORTS
+    function exportPNG() {
+        state.isExporting = true;
+        render();
+        const link = document.createElement('a');
+        link.download = `seller-studio-${state.tab}-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        state.isExporting = false;
+        render();
+    }
+
+    function exportPDF() {
+        state.isExporting = true;
+        render();
+        const dataUrl = canvas.toDataURL('image/png');
+        const win = window.open('', '_blank');
+        win.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;background:#f1f5f9;"><img src="${dataUrl}" style="max-width:100%;box-shadow:0 10px 25px rgba(0,0,0,0.1)"></body><script>setTimeout(()=>window.print(),500)<\/script></html>`);
+        state.isExporting = false;
+        render();
+    }
+
+    function shareDesign() {
+        canvas.toBlob(blob => {
+            const file = new File([blob], "design.png", { type: "image/png" });
+            if (navigator.share) {
+                navigator.share({ files: [file], title: 'My Design', text: 'Check out my design from Seller Studio!' });
+            } else {
+                alert('Sharing not supported on this browser. Please download instead.');
+            }
+        });
+    }
+
+    function exportStamp(withDate) {
+        const originalDate = state.stamp.showDate;
+        state.stamp.showDate = withDate;
+        
+        const stCanvas = document.getElementById('stampCanvas');
+        if (state.tab === 'stamp' && stCanvas) {
+            drawStampPreview();
+            const link = document.createElement('a');
+            link.download = `stamp-${Date.now()}.png`;
+            link.href = stCanvas.toDataURL('image/png');
+            link.click();
+        } else {
+            renderStamp(true);
+            const link = document.createElement('a');
+            link.download = `stamp-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            state.stamp.showDate = originalDate;
+            render();
+        }
+    }
+
+
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
